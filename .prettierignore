@@ -1,0 +1,9 @@
+# Von npm erzeugt
+package-lock.json
+
+# Gefrorene Pläne und übrige Dokumentation nicht umformatieren
+*.md
+
+# Von Guided Coding verwaltete Skills
+.agents/
+.claude/

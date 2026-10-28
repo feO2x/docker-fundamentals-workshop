@@ -1,0 +1,66 @@
+/* Design-Tokens, die Agenda und Folien gemeinsam nutzen.
+   Dunkel ist der Standard; data-theme="light" auf <html> schaltet auf hell um.
+   Die Farben stammen aus dem Corporate Design von gwvs.de: Navy (#002c46) als
+   Grundfarbe, Limettengrün (#b8db04) als Akzent und Blau (#006fb9) als Zweitfarbe. */
+:root {
+  --bg: #001623;
+  --surface: #001d2f;
+  --surface-hover: #00253a;
+  --border: #173b51;
+  --border-strong: #2a4f65;
+
+  --text: #fefefe;
+  --text-muted: #aab9c1;
+  --text-dim: #8096a3;
+
+  --accent: #b8db04;
+  --accent-dim: #7b9203;
+  --accent-wash: rgba(184, 219, 4, 0.12);
+
+  /* Navy auf Limette erreicht in beiden Designs einen Kontrast von ~10:1. */
+  --cta-bg: #b8db04;
+  --cta-bg-hover: #cbe83a;
+  --cta-text: #002c46;
+
+  --praxis: #5cb0e8;
+  --praxis-wash: rgba(92, 176, 232, 0.12);
+  --praxis-border: rgba(92, 176, 232, 0.35);
+
+  --chip-bg: rgba(254, 254, 254, 0.06);
+
+  --radius: 10px;
+  --font-sans:
+    'DIN Pro', 'Barlow', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono:
+    'JetBrains Mono', 'Fira Code', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+
+  color-scheme: dark;
+}
+
+/* Limettengrün ist auf Weiß als Schrift nicht lesbar - im hellen Design tragen
+   Akzent-Texte das dunkle Grün, die Limette bleibt für Flächen und Rahmen. */
+:root[data-theme='light'] {
+  --bg: #f5f7f8;
+  --surface: #ffffff;
+  --surface-hover: #eef1f3;
+  --border: #dde3e6;
+  --border-strong: #ccd5da;
+
+  --text: #002c46;
+  --text-muted: #2a4f65;
+  --text-dim: #557284;
+
+  --accent: #5c6e02;
+  --accent-dim: #b8db04;
+  --accent-wash: rgba(184, 219, 4, 0.15);
+
+  --cta-bg-hover: #a6c504;
+
+  --praxis: #006fb9;
+  --praxis-wash: rgba(0, 111, 185, 0.08);
+  --praxis-border: rgba(0, 111, 185, 0.35);
+
+  --chip-bg: rgba(0, 44, 70, 0.06);
+
+  color-scheme: light;
+}
