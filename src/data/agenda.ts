@@ -39,7 +39,7 @@ export const AGENDA: AgendaBlock[] = [
       'Eure Anwendung läuft auf eurem Rechner. Was muss alles auf den Server, damit sie dort auch läuft?',
     commands: ['docker run --rm', 'cat /etc/os-release'],
     praxisNote:
-      'Python 3.12 und 3.13 nebeneinander starten, ohne etwas zu installieren, und nachsehen, auf welchem Linux sie jeweils laufen.',
+      'Python 3.12 und 3.13 nebeneinander starten, dann mit dem .NET SDK eine App erstellen und ausführen, ohne etwas zu installieren. Zum Schluss nachsehen, auf welchem Linux die Images jeweils laufen.',
   },
   {
     id: 'konzepte',
