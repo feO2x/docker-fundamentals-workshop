@@ -144,17 +144,28 @@ export const AGENDA: AgendaBlock[] = [
   { id: 'pause-2', title: 'Pause', duration: 10, kind: 'break' },
   {
     id: 'multi-stage',
-    title: 'Praxisbeispiel & Multi-Stage',
-    duration: 35,
-    praxis: 20,
+    title: 'Multi-Stage-Builds',
+    duration: 25,
+    praxis: 15,
     kind: 'content',
     summary:
-      'Ein echtes Dockerfile aus NukeExtensions, Zeile für Zeile, mit Labels nach OCI-Standard. Multi-Stage-Builds trennen Bauen und Ausführen, ins fertige Image kommt nur die letzte Stage. Dazu die Wahl des Basis-Images: Debian, Alpine oder FROM scratch.',
+      'Multi-Stage-Builds trennen Bauen und Ausführen: Das .NET SDK kompiliert in der ersten Stage, ins fertige Image kommt nur die letzte. So baut ihr eine .NET-App, ohne selbst ein SDK installiert zu haben. Dazu die Wahl des Basis-Images: Debian, Alpine oder chiseled.',
     question:
       'Zum Bauen braucht ihr Compiler und SDK, zum Ausführen nicht. Warum steckt beides in eurem Image?',
-    commands: ['LABEL', 'FROM … AS', 'COPY --from', 'docker image ls'],
+    commands: ['FROM … AS', 'COPY --from', 'dotnet publish', 'docker image ls'],
     praxisNote:
-      'Ein einstufiges Dockerfile in eine Build- und eine Runtime-Stage aufteilen und die Größe beider Images vergleichen.',
+      'Eine kleine .NET-App erst einstufig auf dem SDK-Image bauen, dann in eine Build- und eine Runtime-Stage aufteilen und die Größe beider Images vergleichen.',
+  },
+  {
+    id: 'nuke-extensions',
+    title: 'Praxisbeispiel: NukeExtensions',
+    duration: 10,
+    kind: 'content',
+    summary:
+      'Wie unsere C#-Projekte ihre Images bauen: NukeExtensions kompiliert auf dem Host, das Dockerfile kopiert nur die fertigen DLLs ins Runtime-Image und setzt die Standard-Labels nach OCI-Standard. Warum das schneller ist als ein Multi-Stage-Build und was es kostet.',
+    question:
+      'In unseren Projekten gibt es keinen Multi-Stage-Build. Warum eigentlich nicht?',
+    commands: ['LABEL', 'COPY', 'docker image inspect'],
   },
   {
     // Offen: Entweder schreiben die Teilnehmer das Dockerfile von Grund auf, oder
