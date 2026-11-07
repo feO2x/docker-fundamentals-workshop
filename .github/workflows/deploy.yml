@@ -1,13 +1,29 @@
 name: Deploy to GitHub Pages
 
+# GitHub Pages hält genau eine Seite pro Repo und ersetzt sie bei jedem
+# Deployment komplett. Deshalb baut jeder Lauf alles neu: main ins
+# Wurzelverzeichnis, jeden offenen Pull Request aus diesem Repo als Vorschau
+# nach pr/<nummer>/. Geschlossene PRs fallen beim nächsten Lauf heraus.
+
 on:
   push:
     branches: [main]
+  # pull_request_target statt pull_request: Die Umgebung github-pages lässt nur
+  # main deployen, und pull_request_target läuft im Kontext von main. Der
+  # Workflow selbst stammt dabei immer aus main, ein PR kann ihn nicht ändern.
+  pull_request_target:
+    types: [opened, reopened, synchronize, closed]
+  # Probelauf für Änderungen an diesem Workflow: baut alles, deployt aber nicht.
+  pull_request:
+    paths: [.github/workflows/deploy.yml]
   workflow_dispatch:
 
-# Nur ein Deployment gleichzeitig; laufende Deployments nicht abbrechen.
+# Nur ein Deployment gleichzeitig; laufende Deployments nicht abbrechen. Ein
+# wartender Lauf wird von einem neueren ersetzt, was nichts verliert, weil
+# jeder Lauf den aktuellen Stand aller PRs baut. Probeläufe zählen nicht mit,
+# sonst könnten sie ein wartendes Deployment verdrängen.
 concurrency:
-  group: pages
+  group: ${{ github.event_name == 'pull_request' && format('pages-check-{0}', github.ref) || 'pages' }}
   cancel-in-progress: false
 
 permissions:
@@ -16,8 +32,17 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      previews: ${{ steps.previews.outputs.built }}
     steps:
+      # Immer den neuesten Stand von main, auch bei PR-Ereignissen.
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
 
       - uses: actions/setup-node@v7
         with:
@@ -32,12 +57,50 @@ jobs:
 
       - run: npm run build
 
+      # PRs aus Forks werden nie gebaut: Ihr Code liefe hier mit Zugriff auf
+      # die Pages-Umgebung. Das Token bekommt nur dieser Schritt, nicht der
+      # nächste, in dem der Code der PRs läuft.
+      - name: Find open pull requests
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh pr list --repo "$GITHUB_REPOSITORY" --state open --limit 100 \
+            --json number,isCrossRepository \
+            --jq '.[] | select(.isCrossRepository | not) | .number' > "$RUNNER_TEMP/open-prs"
+          echo "Offene PRs aus diesem Repo: $(tr '\n' ' ' < "$RUNNER_TEMP/open-prs")"
+
+      # Ein PR, der nicht baut, bekommt keine Vorschau, hält aber weder main
+      # noch die anderen Vorschauen auf.
+      - name: Build previews
+        id: previews
+        run: |
+          built=()
+          # for statt while read: npm ci würde sonst die restliche Liste von stdin lesen.
+          for number in $(cat "$RUNNER_TEMP/open-prs"); do
+            echo "::group::PR #$number"
+            dir="$RUNNER_TEMP/pr-$number"
+            if git fetch --no-tags --depth=1 origin "refs/pull/$number/head" &&
+              git worktree add --detach "$dir" FETCH_HEAD &&
+              (cd "$dir" && npm ci && npm run build); then
+              mkdir -p dist/pr
+              cp -r "$dir/dist" "dist/pr/$number"
+              built+=("$number")
+            else
+              echo "::warning::Die Vorschau für PR #$number ließ sich nicht bauen."
+            fi
+            echo "::endgroup::"
+          done
+          echo "built=${built[*]}" >> "$GITHUB_OUTPUT"
+          echo "Vorschauen: ${built[*]:-keine}"
+
       - uses: actions/upload-pages-artifact@v5
+        if: github.event_name != 'pull_request'
         with:
           path: dist
 
   deploy:
     needs: build
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     permissions:
       pages: write
@@ -45,6 +108,35 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+    outputs:
+      page_url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
         uses: actions/deploy-pages@v5
+
+  # Ein Kommentar mit dem Link pro PR. Läuft für alle gebauten Vorschauen,
+  # damit auch PRs ihn bekommen, die vor diesem Workflow geöffnet wurden.
+  comment:
+    needs: [build, deploy]
+    if: needs.build.outputs.previews != ''
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Link previews in their pull requests
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PAGE_URL: ${{ needs.deploy.outputs.page_url }}
+          PREVIEWS: ${{ needs.build.outputs.previews }}
+        run: |
+          marker='<!-- pages-preview -->'
+          for number in $PREVIEWS; do
+            existing=$(gh api "repos/$GITHUB_REPOSITORY/issues/$number/comments" --paginate \
+              --jq "[.[] | select(.body | contains(\"$marker\"))] | length")
+            if [ "$existing" -eq 0 ]; then
+              gh pr comment "$number" --repo "$GITHUB_REPOSITORY" --body "$marker
+          **Vorschau:** ${PAGE_URL}pr/$number/ (Folien: ${PAGE_URL}pr/$number/slides.html)
+
+          Wird bei jedem Push neu gebaut und verschwindet, sobald der PR geschlossen ist."
+            fi
+          done
