@@ -1,0 +1,111 @@
+/* Diagramme aus HTML/CSS. Farben nur über die Design-Tokens,
+   damit beide Designs (hell/dunkel) ohne Sonderregeln funktionieren. */
+
+/* ---------- Abhängigkeiten einer Anwendung ---------- */
+
+.dependencies {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0;
+  list-style: none;
+  font-size: 0.75em;
+}
+
+.dependency {
+  display: flex;
+  align-items: baseline;
+  gap: 24px;
+  padding: 10px 24px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.dependency strong {
+  flex: 0 0 230px;
+}
+
+.dependency span {
+  color: var(--text-muted);
+}
+
+.dependency--app {
+  border-color: var(--praxis-border);
+  background: var(--praxis-wash);
+}
+
+.dependency--app strong {
+  color: var(--praxis);
+}
+
+/* Der Kernel gehört nicht zur Anwendung: abgesetzt und gestrichelt. */
+.dependency--kernel {
+  margin-top: 14px;
+  border-style: dashed;
+  background: transparent;
+}
+
+.dependency--kernel strong {
+  color: var(--accent);
+}
+
+/* ---------- Container mit eigenem User Space ---------- */
+
+.reveal .image-stacks {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  font-size: 0.75em;
+}
+
+.image-stacks__containers {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.guest {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius);
+}
+
+.guest__label {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  color: var(--text-dim);
+}
+
+.box {
+  padding: 12px 14px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+  text-align: center;
+}
+
+.box--app {
+  border-color: var(--praxis-border);
+  background: var(--praxis-wash);
+}
+
+.box--os {
+  color: var(--text-muted);
+}
+
+.box--kernel {
+  border-color: var(--accent);
+  background: var(--accent-wash);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.box--hardware {
+  background: var(--chip-bg);
+  color: var(--text-muted);
+}
