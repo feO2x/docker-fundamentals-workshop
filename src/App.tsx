@@ -24,6 +24,13 @@ export default function App() {
           ein Image.
         </p>
 
+        <a className="cta" href="slides.html">
+          Zu den Folien
+          <span className="cta__arrow" aria-hidden="true">
+            →
+          </span>
+        </a>
+
         <dl className="stats">
           <div className="stat">
             <dt>Dauer</dt>

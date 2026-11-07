@@ -18,5 +18,7 @@ CI (`.github/workflows/ci.yml`) runs these commands on pull requests, `.github/w
 
 ## Good to know
 
-- The agenda page has no link to slides yet. `.cta` in `src/App.css` is kept for the "Zu den Folien" button once the slides exist.
+- The slides (`slides.html`, `src/slides/`) use the reveal.js setup of the Linux Fundamentals workshop: one vertical `BlockStack` per agenda block with its `SectionSlide` on top, `navigationMode: 'linear'`, and a separate Vite entry so Reveal and highlight.js stay out of the agenda bundle. Its pitfalls apply here as well. Fragments that follow a multi-step `StepCode` belong inside `WhenDeckReady`, otherwise they appear before the code steps. `BlockStack` sets `data-start-indexv="0"` so → always enters a block at its section slide. `slides.html?transition=none` is handy for screenshots. Fragments inside `WhenDeckReady` stay hidden with `fragments=false`.
+- `StepCode` highlights one line per step by default. `steps={false}` shows all lines at once, e.g. for commands on an exercise slide.
+- The "Warum Docker?" slides use floating tags of official images (`src/slides/images.ts`). The versions and `/etc/os-release` values on the slides were read from the registries on 2026-11-07: `python:3.12` is 3.12.16 and `python:3.13` is 3.13.18, both on Debian 13 (trixie). `mcr.microsoft.com/dotnet/sdk:10.0` is Ubuntu 24.04.5 LTS (since .NET 10, Microsoft's default images are Ubuntu-based), starts `/bin/bash`, sets `DOTNET_NOLOGO=true` and is about 350 MB compressed. Re-check them before each workshop.
 - The push exercises use a local `registry:2` container instead of the internal Harbor registry, because not every attendee can reach Harbor.

@@ -1,0 +1,507 @@
+/* Reveal nimmt 100 % der Höhe seines Elternelements ein - also muss #root mitwachsen. */
+#root {
+  height: 100%;
+}
+
+/* Reveal färbt den Viewport (body) weiß - wir übernehmen die Farben der Agenda. */
+.reveal-viewport {
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* Grundschrift für die 1280×720-Leinwand; Reveal skaliert sie mit. */
+.reveal {
+  font-family: var(--font-sans);
+  font-size: 30px;
+  line-height: 1.4;
+}
+
+/* reveal.css zentriert Text - auf unseren Folien steht er links. */
+.reveal .slides {
+  text-align: left;
+}
+
+/* Volle Leinwandhöhe, damit die Layouts darin verteilen können.
+   Kein Grid/Flex auf der section selbst: Reveal schaltet deren display um. */
+.reveal .slides > section {
+  height: 100%;
+}
+
+.reveal h1,
+.reveal h2,
+.reveal p,
+.reveal ul,
+.reveal ol,
+.reveal dl,
+.reveal dd,
+.reveal figure {
+  margin: 0;
+}
+
+.reveal h1,
+.reveal h2 {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.reveal h1 {
+  font-size: 2.75em;
+}
+
+.reveal h2 {
+  font-size: 1.6em;
+}
+
+.reveal .section-title {
+  font-size: 2.2em;
+}
+
+/* Inline-Code im Fließtext; Codeblöcke (pre > code) gestaltet der Abschnitt „Code“. */
+.reveal :not(pre) > code {
+  padding: 0.05em 0.3em;
+  border-radius: 6px;
+  background: var(--chip-bg);
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+}
+
+.reveal .controls,
+.reveal .progress {
+  color: var(--accent);
+}
+
+.reveal .progress {
+  background: var(--border);
+}
+
+/* ---------- Layouts ---------- */
+
+.layout {
+  box-sizing: border-box;
+  height: 100%;
+  padding: 64px 80px;
+}
+
+.layout--centered {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 24px;
+}
+
+/* Titelzeile oben, Inhalt füllt die Resthöhe - egal, wie viel drinsteht. */
+.layout--content {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 40px;
+}
+
+.eyebrow {
+  font-size: 0.6em;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.lede {
+  max-width: 900px;
+  color: var(--text-muted);
+}
+
+.lede--strong {
+  color: var(--text);
+}
+
+/* Inhaltsbereich als Spalte; Codeblöcke darin sind so hoch wie ihr Inhalt. */
+.layout__body {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-height: 0;
+}
+
+/* ---------- Code ---------- */
+
+/* position: relative, weil das Highlight-Plugin die Schritte als
+   absolut positionierte Kopien über den Codeblock legt. */
+.reveal pre {
+  position: relative;
+  flex: none;
+  margin: 0;
+}
+
+/* .slides erhöht die Spezifität über die Regeln aus reveal.css
+   (html:not(.print-pdf) .reveal .hljs …). */
+.reveal .slides pre code.hljs {
+  display: block;
+  box-sizing: border-box;
+  height: 100%;
+  overflow: auto;
+  padding: 24px 28px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  line-height: 1.6;
+}
+
+/* Das Highlight-Plugin braucht Zeilennummern für die Schritte. Angezeigt
+   werden sie nicht - bei Kommandos würden sie nur zum Abtippen verleiten. */
+.reveal .hljs-ln-numbers {
+  display: none;
+}
+
+/* Hervorgehobene Zeilen über die volle Breite des Blocks. */
+.reveal .hljs table {
+  width: 100%;
+}
+
+/* Kleinere Schrift für lange Kommandos, z. B. mit dem Image des .NET SDK. */
+.reveal .slides pre.code--small code.hljs {
+  font-size: 0.7em;
+}
+
+.reveal .hljs.has-highlights tr:not(.highlight-line) {
+  opacity: 0.35;
+}
+
+.reveal .hljs.has-highlights tr.highlight-line {
+  background: var(--accent-wash);
+}
+
+/* Hebt nur das Kommando hervor; die Ausgabe darunter bleibt voll lesbar. */
+.reveal pre.code--command .hljs.has-highlights tr:not(.highlight-line) {
+  opacity: 1;
+}
+
+.reveal .hljs-built_in,
+.reveal .hljs-keyword {
+  color: var(--accent);
+}
+
+.reveal .hljs-string,
+.reveal .hljs-variable,
+.reveal .hljs-template-variable {
+  color: var(--praxis);
+}
+
+.reveal .hljs-meta,
+.reveal .hljs-comment {
+  color: var(--text-dim);
+}
+
+/* ---------- Übung ---------- */
+.exercise {
+  padding-left: 20px;
+  border-left: 3px solid var(--praxis);
+  color: var(--text-muted);
+  font-size: 0.8em;
+}
+
+.exercise__label {
+  display: block;
+  font-size: 0.7em;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--praxis);
+}
+
+/* Übungsfolie: der Kasten ist der Hauptinhalt, also größer und kräftiger. */
+.exercise--slide {
+  color: var(--text);
+  font-size: 0.9em;
+}
+
+.exercise__tasks {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 12px;
+  padding-left: 1.3em;
+}
+
+.exercise__tasks li::marker {
+  color: var(--praxis);
+  font-weight: 600;
+}
+
+.exercise__tasks pre {
+  margin-top: 12px;
+}
+
+.question {
+  padding-left: 20px;
+  border-left: 3px solid var(--accent);
+  font-size: 0.85em;
+}
+
+.question--section {
+  max-width: 900px;
+  font-size: 1em;
+}
+
+.question__label {
+  display: block;
+  font-size: 0.7em;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+/* ---------- Bausteine für Inhaltsfolien ---------- */
+
+.points {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-left: 1.2em;
+  font-size: 0.85em;
+}
+
+.points li::marker {
+  color: var(--accent);
+}
+
+/* Für Kommandos im Fließtext, die nicht umbrechen sollen. */
+.nowrap {
+  white-space: nowrap;
+}
+
+.note {
+  color: var(--text-muted);
+  font-size: 0.7em;
+}
+
+.takeaway {
+  padding-left: 20px;
+  border-left: 3px solid var(--accent);
+  font-weight: 600;
+}
+
+/* Der Grundsatz des Workshops - das, was hängen bleiben soll. */
+.principle {
+  padding: 20px 28px;
+  border-radius: var(--radius);
+  background: var(--accent-wash);
+  color: var(--text);
+  font-size: 1.05em;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+/* Begriff links, Erklärung rechts. Zeilen (.legend__row) übernehmen die
+   Spalten per subgrid, damit sie einzeln als Fragment erscheinen können. */
+.legend {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 14px 28px;
+  align-items: baseline;
+  font-size: 0.85em;
+}
+
+.legend__row {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+  align-items: baseline;
+}
+
+.legend dt {
+  font-family: var(--font-mono);
+  font-weight: 600;
+}
+
+/* Begriffsspalte so breit wie der längste Begriff, z. B. für lange Optionen. */
+.legend--auto {
+  grid-template-columns: max-content 1fr;
+}
+
+.legend--compact {
+  gap: 8px 28px;
+  font-size: 0.75em;
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: start;
+  min-height: 0;
+}
+
+/* Mehr Platz links, z. B. für einen breiten Codeblock. */
+.columns--wide-first {
+  grid-template-columns: 3fr 2fr;
+}
+
+/* ---------- Agenda-Übersicht ---------- */
+
+.agenda-overview {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 56px;
+  padding: 0;
+  list-style: none;
+  font-size: 0.75em;
+}
+
+.agenda-overview li {
+  display: grid;
+  grid-template-columns: 90px 1fr auto;
+  gap: 16px;
+  align-items: baseline;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.agenda-overview time {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.agenda-overview__duration {
+  color: var(--text-dim);
+  font-size: 0.85em;
+}
+
+.agenda-overview li:not([data-kind='content']) {
+  color: var(--text-muted);
+}
+
+.agenda-overview li:not([data-kind='content']) time {
+  color: var(--text-dim);
+}
+
+.agenda-overview__end {
+  color: var(--text-muted);
+  font-size: 0.7em;
+}
+
+/* Beschriftung über einer Spalte, z. B. „Ohne Image“ und „Mit Image“. */
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.column__label {
+  font-size: 0.6em;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.column__label--accent {
+  color: var(--accent);
+}
+
+/* ---------- Karten ---------- */
+
+.cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  padding: 0;
+  list-style: none;
+  font-size: 0.8em;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 20px 24px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.card span {
+  color: var(--text-muted);
+}
+
+/* ---------- Lösungen ---------- */
+
+.solutions {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.75em;
+}
+
+.solutions th {
+  padding: 0 16px 12px;
+  border-bottom: 1px solid var(--border-strong);
+  color: var(--text-muted);
+  font-size: 0.85em;
+  text-align: left;
+}
+
+.solutions td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: baseline;
+}
+
+.solutions td.solutions__path {
+  white-space: nowrap;
+}
+
+/* Eine Zelle über mehrere Zeilen, wenn die Antwort für alle gleich ist. */
+.solutions td.solutions__merged {
+  border-left: 1px solid var(--border);
+  color: var(--accent);
+  font-weight: 600;
+  vertical-align: middle;
+}
+
+/* Hinweise unter einer Lösungstabelle. */
+.solutions + .note,
+.solutions + .points {
+  margin-top: 24px;
+}
+
+/* Rückfrage und Lösung liegen übereinander (r-stack). */
+.spoiler {
+  align-items: start;
+}
+
+.reveal .spoiler > * {
+  width: 100%;
+}
+
+.spoiler__prompt {
+  align-self: center;
+  color: var(--text-muted);
+  font-size: 0.9em;
+  text-align: center;
+}
+
+/* ---------- Designumschalter ---------- */
+
+/* Unaufdringlich in der Ecke, solange niemand darauf zeigt. */
+.slides-theme-toggle {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 40;
+  opacity: 0.35;
+}
+
+.slides-theme-toggle:hover,
+.slides-theme-toggle:focus-visible {
+  opacity: 1;
+}
+
+html.print-pdf .slides-theme-toggle {
+  display: none;
+}
