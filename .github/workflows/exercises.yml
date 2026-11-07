@@ -99,6 +99,10 @@ jobs:
           docker run --rm -e EINHEIT=fahrenheit wetter Hamburg
           if docker run --rm wetter Gibtsnichtstadtxyz; then exit 1; fi
           docker image ls wetter
+          # Ohne ca-certificates kann curl kein HTTPS. Die Meldung steht auf den Folien.
+          sed 's/ ca-certificates//' loesungen/wetter.Dockerfile > "$RUNNER_TEMP/ohne-zertifikate.Dockerfile"
+          docker build -q -t wetter:ohne-zertifikate -f "$RUNNER_TEMP/ohne-zertifikate.Dockerfile" wetter
+          if docker run --rm wetter:ohne-zertifikate; then exit 1; fi
 
       - name: Layer und Caching
         run: |
@@ -173,11 +177,11 @@ jobs:
         run: |
           docker build -t zaehler:1.0 -f loesungen/zaehler.Dockerfile zaehler
           docker run -d --name zaehler -p 8080:8080 -v zaehler-daten:/app/daten zaehler:1.0
-          curl -fsS --retry 15 --retry-connrefused --retry-delay 1 localhost:8080
+          curl -fsS --retry 15 --retry-all-errors --retry-delay 1 localhost:8080
           curl -fsS localhost:8080
           docker rm -f zaehler
           docker run -d --name zaehler -p 8080:8080 -v zaehler-daten:/app/daten zaehler:1.0
-          curl -fsS --retry 15 --retry-connrefused --retry-delay 1 localhost:8080 | grep 'Nr. 3'
+          curl -fsS --retry 15 --retry-all-errors --retry-delay 1 localhost:8080 | grep 'Nr. 3'
           docker logs zaehler
           docker tag zaehler:1.0 localhost:5050/zaehler:1.0
           docker push localhost:5050/zaehler:1.0
