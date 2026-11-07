@@ -505,3 +505,160 @@
 html.print-pdf .slides-theme-toggle {
   display: none;
 }
+
+/* ---------- Image-Referenz ---------- */
+
+.ref-anatomy {
+  align-self: flex-start;
+  padding: 20px 32px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  font-family: var(--font-mono);
+  font-size: 1.3em;
+  font-weight: 600;
+}
+
+.ref-anatomy__registry {
+  color: var(--praxis);
+}
+
+.ref-anatomy__name {
+  color: var(--text);
+}
+
+.ref-anatomy__tag {
+  color: var(--accent);
+}
+
+.ref-anatomy__separator {
+  color: var(--text-dim);
+}
+
+/* Begriffe in der Legende in der Farbe ihres Teils der Referenz. */
+.reveal .legend dt.ref-anatomy__registry {
+  color: var(--praxis);
+}
+
+.reveal .legend dt.ref-anatomy__tag {
+  color: var(--accent);
+}
+
+/* Vergleichstabelle, z. B. Volume gegen Bind Mount. */
+.compare {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.75em;
+}
+
+.compare th {
+  padding: 0 16px 12px 0;
+  border-bottom: 1px solid var(--border-strong);
+  color: var(--text-muted);
+  font-size: 0.85em;
+  text-align: left;
+}
+
+.compare td {
+  padding: 14px 16px 14px 0;
+  border-bottom: 1px solid var(--border);
+  vertical-align: baseline;
+}
+
+.compare td:first-child {
+  color: var(--text-muted);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Für lange Ausgaben wie docker ps oder docker history. */
+.reveal .slides pre.code--dense code.hljs {
+  padding: 12px 20px;
+  font-size: 0.55em;
+  line-height: 1.3;
+}
+
+/* Ausgaben, deren Zeichen sich nicht umbrechen dürfen, z. B. ein figlet-Banner. */
+.reveal .slides pre.code--art code.hljs {
+  font-size: 0.75em;
+  line-height: 1.25;
+}
+
+/* ---------- Pause ---------- */
+
+.break-time {
+  color: var(--accent);
+  font-size: 1.4em;
+  font-weight: 600;
+}
+/* Empfehlung zum Weiterlernen auf der letzten Folie: Kanalbild, Kanal, Videos. */
+.further {
+  display: flex;
+  gap: 32px;
+  align-items: center;
+  align-self: flex-start;
+  padding: 24px 32px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+/* Das Kanalbild hat weiße Ecken um den runden Hintergrund - der Kreis schneidet sie weg. */
+.further__avatar {
+  flex: none;
+  width: 140px;
+  height: 140px;
+  clip-path: circle(46%);
+}
+
+.further__label {
+  font-size: 0.6em;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.further__channel {
+  font-weight: 700;
+}
+
+.further__handle {
+  color: var(--text-muted);
+  font-size: 0.75em;
+  font-weight: 400;
+}
+
+.further__videos {
+  margin-top: 6px;
+  padding-left: 1.1em;
+  font-size: 0.8em;
+}
+
+.reveal .further a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.reveal .further a:hover {
+  text-decoration: underline;
+}
+
+/* Codeblock so breit wie seine längste Zeile, daneben der Rest. */
+.columns--code {
+  grid-template-columns: max-content 1fr;
+}
+
+.cards--three {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.reveal .card code {
+  align-self: flex-start;
+  font-size: 0.8em;
+}
+
+/* Ligaturen würden ASCII-Kunst wie ein figlet-Banner verzerren. */
+.reveal pre.code--art code {
+  font-variant-ligatures: none;
+}

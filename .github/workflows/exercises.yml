@@ -191,3 +191,23 @@ jobs:
           docker build --progress=plain -t zaehler:1.0 -f loesungen/zaehler.Dockerfile zaehler 2>&1 | tee "$RUNNER_TEMP/build.log"
           grep -E 'RUN dotnet restore' -A1 "$RUNNER_TEMP/build.log" | grep CACHED
           git checkout zaehler/Program.cs
+
+      - name: Ausblick
+        run: |
+          docker network create workshop
+          docker network connect workshop registry
+          docker run --rm --network workshop --entrypoint curl wetter:1.0 \
+            -s http://registry:5000/v2/_catalog | tee "$RUNNER_TEMP/catalog"
+          grep -q zaehler "$RUNNER_TEMP/catalog"
+          # Der Health Check der Folie: nginx muss curl mitbringen.
+          printf '%s\n' 'FROM nginx' 'HEALTHCHECK --interval=2s --timeout=3s \' \
+            '    CMD curl -f http://localhost/ || exit 1' > "$RUNNER_TEMP/health.Dockerfile"
+          docker build -q -t nginx-health -f "$RUNNER_TEMP/health.Dockerfile" "$RUNNER_TEMP"
+          docker run -d --name health nginx-health
+          for _ in $(seq 1 15); do
+            status=$(docker inspect --format '{{.State.Health.Status}}' health)
+            [ "$status" = healthy ] && break
+            sleep 1
+          done
+          docker ps --filter name=health
+          test "$status" = healthy

@@ -13,6 +13,9 @@ const end = SCHEDULE[SCHEDULE.length - 1].end
 const finalExercise = slotOf('abschlussuebung')
 const concepts = slotOf('konzepte')
 
+// Die Übungsdateien liegen in exercises/ dieses Repos.
+const EXERCISES_REPO = 'https://github.com/feO2x/docker-fundamentals-workshop.git'
+
 /** Titelfolie, Ziel des Workshops, Agenda-Übersicht und Vorbereitung. */
 export function Opening() {
   return (
@@ -69,8 +72,10 @@ export function Opening() {
               `docker pull ${PYTHON_312}`,
               `docker pull ${PYTHON_313}`,
               `docker pull ${DOTNET_SDK}`,
+              '# Übungsdateien holen',
+              `git clone ${EXERCISES_REPO}`,
             ]}
-            steps="1-2|3-6"
+            steps="1-2|3-6|7-8"
             className="code--small"
           />
           <WhenDeckReady>

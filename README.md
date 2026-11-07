@@ -6,7 +6,7 @@ Agenda-Seite und Folien für den vierstündigen Workshop „Docker Fundamentals�
 
 Der komplette Zeitplan steht in `src/data/agenda.ts`. Uhrzeiten, Gesamtdauer und Praxisanteil werden aus den Blockdauern berechnet. Um einen Block zu verschieben oder umzutimen, ändert man also nur dieses Array.
 
-Die Folien (`slides.html`, Quellen unter `src/slides/`) bauen auf reveal.js auf und übernehmen Titel, Fragen und Uhrzeiten der Blöcke ebenfalls aus der Agenda. Jeder Block hat eine eigene Datei unter `src/slides/blocks/`. Bisher gibt es den Einstieg und den Block „Warum Docker?“.
+Die Folien (`slides.html`, Quellen unter `src/slides/`) bauen auf reveal.js auf und übernehmen Titel, Fragen und Uhrzeiten der Blöcke ebenfalls aus der Agenda. Jeder Block hat eine eigene Datei unter `src/slides/blocks/`. Die Dockerfiles der Übungen lesen die Folien direkt aus `exercises/` ein.
 
 ## Lokal starten
 
@@ -14,6 +14,30 @@ Die Folien (`slides.html`, Quellen unter `src/slides/`) bauen auf reveal.js auf 
 npm ci
 npm run dev
 ```
+
+## Übungsdateien
+
+Die Teilnehmer klonen das Repo zu Beginn (Folie „Bevor es losgeht“) und arbeiten in `exercises/`:
+
+| Ordner | Block | Inhalt |
+| --- | --- | --- |
+| `website/` | Volumes & Bind Mounts | `index.html` für nginx per Bind Mount |
+| `banner/` | Das erste Dockerfile | Beispiel-Image mit `figlet`, Vorlage für die Folien |
+| `wetter/` | Das erste Dockerfile, Layer & Caching, Taggen & Pushen | `wetter.sh` (curl, jq, Open-Meteo); das Dockerfile schreiben die Teilnehmer |
+| `hallo-dotnet/` | Multi-Stage-Builds | Konsolen-App mit einstufigem Dockerfile |
+| `zaehler/` | Abschlussübung | Besucherzähler (ASP.NET Core) mit absichtlich kaputtem Dockerfile |
+| `loesungen/` | | die Lösungs-Dockerfiles, die auch die Folien zeigen |
+
+Der Workflow `.github/workflows/exercises.yml` spielt jede Übung so durch, wie die Folien sie vorgeben, und schlägt fehl, wenn ein Image nicht tut, was versprochen ist. Die Beispielausgaben auf den Folien (`docker ps`, Logs, Cache, Image-Größen) stammen aus seinen Logs. Lokal lässt sich z. B. die Abschlussübung so prüfen:
+
+```bash
+cd exercises
+docker build -t zaehler:1.0 -f loesungen/zaehler.Dockerfile zaehler
+docker run -d --name zaehler -p 8080:8080 -v zaehler-daten:/app/daten zaehler:1.0
+curl localhost:8080   # Moin! Ihr seid Besucher Nr. 1.
+```
+
+`.gitattributes` erzwingt LF für Skripte und Dockerfiles, sonst scheitern sie nach einem Checkout unter Windows im Container.
 
 ## Vorschau für Pull Requests
 

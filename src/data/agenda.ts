@@ -149,7 +149,7 @@ export const AGENDA: AgendaBlock[] = [
     praxis: 15,
     kind: 'content',
     summary:
-      'Multi-Stage-Builds trennen Bauen und Ausführen: Das .NET SDK kompiliert in der ersten Stage, ins fertige Image kommt nur die letzte. So baut ihr eine .NET-App, ohne selbst ein SDK installiert zu haben. Dazu die Wahl des Basis-Images: Debian, Alpine oder chiseled.',
+      'Multi-Stage-Builds trennen Bauen und Ausführen: Das .NET SDK kompiliert in der ersten Stage, ins fertige Image kommt nur die letzte. So baut ihr eine .NET-App, ohne selbst ein SDK installiert zu haben. Dazu die Wahl des Basis-Images: Ubuntu, Alpine oder chiseled.',
     question:
       'Zum Bauen braucht ihr Compiler und SDK, zum Ausführen nicht. Warum steckt beides in eurem Image?',
     commands: ['FROM … AS', 'COPY --from', 'dotnet publish', 'docker image ls'],
@@ -168,21 +168,18 @@ export const AGENDA: AgendaBlock[] = [
     commands: ['LABEL', 'COPY', 'docker image inspect'],
   },
   {
-    // Offen: Entweder schreiben die Teilnehmer das Dockerfile von Grund auf, oder
-    // sie reparieren ein absichtlich kaputtes (falsche Layer-Reihenfolge, Port nicht
-    // freigegeben, Daten im Container statt im Volume, aufgeblähtes einstufiges
-    // Image). Summary und praxisNote passen bis zur Entscheidung auf beide Varianten.
     id: 'abschlussuebung',
     title: 'Abschlussübung',
     duration: 30,
     praxis: 30,
     kind: 'content',
     summary:
-      'Alles aus dem Workshop an einem Stück: Eine kleine Anwendung kommt in ein Image, läuft als Container und landet in der Registry.',
-    question: 'Eine Anwendung soll in einen Container. Was braucht ihr dafür alles?',
+      'Alles aus dem Workshop an einem Stück: Ein Kollege hat einen kleinen Besucherzähler containerisiert, aber nichts davon klappt richtig. Ihr findet die Fehler, bringt die Anwendung als Container zum Laufen und schiebt das Image in die Registry.',
+    question:
+      'Ein Container läuft, aber niemand erreicht ihn, und nach einem Neustart sind die Daten weg. Was ist hier schiefgegangen?',
     commands: ['docker build', 'docker run -p -v', 'docker logs', 'docker push'],
     praxisNote:
-      'Dockerfile mit Multi-Stage-Build, Image bauen und taggen, Container mit Port und Volume starten, Logs prüfen und das Image in die lokale Registry pushen.',
+      'Ein absichtlich kaputtes Setup reparieren: falsche Layer-Reihenfolge, nicht erreichbarer Port, Daten im Container statt im Volume und ein aufgeblähtes einstufiges Image. Danach das Image taggen und in die lokale Registry pushen.',
   },
   {
     id: 'ausblick',
