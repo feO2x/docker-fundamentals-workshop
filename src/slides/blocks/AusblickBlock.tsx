@@ -59,7 +59,8 @@ export function AusblickBlock() {
               </li>
               <Fragment as="li">
                 <code>docker compose up -d</code> baut und startet alles,{' '}
-                <code>docker compose down</code> räumt auf.
+                <code>docker compose down</code> räumt auf - bis auf das Volume. Compose
+                stellt ihm den Ordnernamen voran: <code>zaehler_zaehler-daten</code>.
               </Fragment>
               <Fragment as="li">
                 Ideal für mehrere Container, die zusammengehören: App, Datenbank, Cache.

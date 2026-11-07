@@ -176,9 +176,13 @@ export function RegistryBlock() {
                 Der Katalog zeigt <code>{'{"repositories":["wetter"]}'}</code>.
               </li>
               <li>
-                <code>image rm</code> entfernt nur den Namen, solange{' '}
-                <code>wetter:1.0</code> noch auf dieselbe ID zeigt (<code>Untagged</code>
-                ). Deshalb muss der Pull fast nichts laden.
+                Löscht ihr nur <code>localhost:5050/wetter:1.0</code>, lädt der Pull gar
+                nichts: <code>wetter:1.0</code> hat dieselben Schichten noch.
+              </li>
+              <li>
+                Löscht ihr beide Namen, kommt nur die Schicht mit dem Skript. Alle anderen
+                meldet Docker als <code>Already exists</code>, weil andere Images sie
+                schon mitbringen.
               </li>
             </ul>
           </Spoiler>

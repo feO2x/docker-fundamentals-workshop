@@ -92,8 +92,8 @@ export function LayerBlock() {
             Was sich selten ändert, nach oben. Was sich oft ändert, nach unten.
           </Fragment>
           <Fragment as="p" className="note">
-            Im Test mit schnellem Netz: 0,2 Sekunden gegen 8 Sekunden. Im Workshop-WLAN
-            eher mehr.
+            Gemessen mit Docker Desktop: 0,7 Sekunden gegen knapp 9 Sekunden. Im
+            Workshop-WLAN eher mehr.
           </Fragment>
         </ContentLayout>
       </Slide>
@@ -177,7 +177,7 @@ export function LayerBlock() {
                 <tr>
                   <th>Nach einer Änderung am Skript</th>
                   <th>neu gebaut</th>
-                  <th>Dauer im Test</th>
+                  <th>Dauer mit Docker Desktop</th>
                 </tr>
               </thead>
               <tbody>
@@ -186,14 +186,14 @@ export function LayerBlock() {
                   <td>
                     nur <code>COPY</code>
                   </td>
-                  <td>0,2 s</td>
+                  <td>0,7 s</td>
                 </tr>
                 <tr>
                   <td>erst Skript, dann Pakete</td>
                   <td>
                     <code>COPY</code> und das ganze <code>apt-get</code>
                   </td>
-                  <td>7,8 s</td>
+                  <td>8,7 s</td>
                 </tr>
               </tbody>
             </table>
