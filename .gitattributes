@@ -1,0 +1,5 @@
+# Skripte und Dockerfiles laufen im Linux-Container. Mit CRLF aus einem
+# Windows-Checkout scheitern sie dort ("/bin/sh^M: not found").
+*.sh text eol=lf
+Dockerfile text eol=lf
+*.Dockerfile text eol=lf
