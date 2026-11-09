@@ -33,7 +33,7 @@ const fixes: { symptom: ReactNode; cause: ReactNode; fix: ReactNode }[] = [
     ),
     fix: (
       <>
-        die <code>ENV</code>-Zeile streichen, das Image lauscht von sich aus auf 8080
+        <code>ENV</code>-Zeile streichen: Das Image lauscht schon auf 8080
       </>
     ),
   },
@@ -68,8 +68,21 @@ const fixes: { symptom: ReactNode; cause: ReactNode; fix: ReactNode }[] = [
     ),
     fix: (
       <>
-        erst <code>Zaehler.csproj</code> kopieren und <code>dotnet restore</code>, dann
-        den Rest
+        erst die <code>.csproj</code> kopieren und restoren, dann den Rest
+      </>
+    ),
+  },
+  {
+    symptom: 'App läuft als root',
+    cause: (
+      <>
+        kein <code>USER</code> im Dockerfile
+      </>
+    ),
+    fix: (
+      <>
+        <code>/app/daten</code> für <code>$APP_UID</code> anlegen, dann{' '}
+        <code>USER $APP_UID</code>
       </>
     ),
   },
@@ -106,6 +119,7 @@ export function AbschlussBlock() {
               an <code>Program.cs</code> darf kein neues <code>dotnet restore</code>{' '}
               auslösen.
             </li>
+            <li>Und die App läuft nicht als root.</li>
           </ul>
         </ContentLayout>
       </Slide>
@@ -118,7 +132,7 @@ export function AbschlussBlock() {
             Baut das Image des Kollegen als <code>zaehler:1.0</code>, startet es mit
             seinem Kommando und probiert es im Browser aus.
           </>,
-          'Findet die vier Probleme und repariert Dockerfile und Startkommando.',
+          'Findet die fünf Probleme und repariert Dockerfile und Startkommando.',
           <>
             Prüft: Zählt die Seite hoch? Zählt sie nach <code>docker rm -f zaehler</code>{' '}
             und neuem Start weiter? Wie groß ist das Image?
@@ -161,6 +175,14 @@ export function AbschlussBlock() {
               <dt>Restore bei jeder Änderung</dt>
               <dd>Ab welcher Anweisung baut Docker neu, wenn sich Program.cs ändert?</dd>
             </Fragment>
+            <Fragment as="div" className="legend__row">
+              <dt>Access … is denied</dt>
+              <dd>
+                Wem gehört <code>/app/daten</code>? Ein neues Volume übernimmt den
+                Besitzer aus dem Image. Stammt es von einem Lauf als root:{' '}
+                <code>docker volume rm zaehler-daten</code>.
+              </dd>
+            </Fragment>
           </dl>
         </ContentLayout>
       </Slide>
@@ -172,7 +194,7 @@ export function AbschlussBlock() {
               <colgroup>
                 <col style={{ width: '1em' }} />
                 <col style={{ width: '22%' }} />
-                <col style={{ width: '37%' }} />
+                <col style={{ width: '33%' }} />
                 <col />
               </colgroup>
               <tbody>
@@ -210,6 +232,11 @@ export function AbschlussBlock() {
               <li>
                 Nach einer Änderung an <code>Program.cs</code> zeigt der Build{' '}
                 <code>CACHED</code> beim Restore.
+              </li>
+              <li>
+                Die App läuft als <code>app</code>. <code>RUN</code> vor <code>USER</code>{' '}
+                legt <code>/app/daten</code> für sie an, ein neues Volume übernimmt den
+                Besitzer.
               </li>
             </ul>
           </div>

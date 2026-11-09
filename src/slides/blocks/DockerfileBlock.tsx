@@ -24,9 +24,13 @@ const bannerSteps = [
   `${at('WORKDIR')}`,
   `${at('COPY')}`,
   `${at('ENV')}`,
+  `${at('USER')}`,
   `${at('ENTRYPOINT')}`,
   `${at('CMD')}`,
 ].join('|')
+
+// Ab RUN bis USER: Was vor USER steht, läuft als root, alles danach als ubuntu.
+const userSteps = `${at('RUN')}-${at('USER') - 1}|${at('USER')}-${bannerLines.length}`
 
 // Die Zeilen von RUN, für die Folie über lange Befehle.
 const runLines = bannerLines.slice(at('RUN') - 1, at('WORKDIR') - 1)
@@ -42,12 +46,13 @@ const moinBanner = [
 
 /** Eine Anweisung des Dockerfiles mit Erklärung, als Zeile der Legende. */
 const instructions = [
-  { name: 'FROM', text: 'Basis-Image, darauf baut alles auf' },
-  { name: 'RUN', text: 'Kommando beim Bauen, z. B. apt-get' },
-  { name: 'WORKDIR', text: 'Arbeitsverzeichnis, wird angelegt' },
+  { name: 'FROM', text: 'Basis-Image' },
+  { name: 'RUN', text: 'Kommando beim Bauen' },
+  { name: 'WORKDIR', text: 'Arbeitsverzeichnis' },
   { name: 'COPY', text: 'Dateien von euch ins Image' },
-  { name: 'ENV', text: 'Umgebungsvariable mit Standardwert' },
-  { name: 'ENTRYPOINT', text: 'das Programm beim Start' },
+  { name: 'ENV', text: 'Umgebungsvariable' },
+  { name: 'USER', text: 'Benutzer für alles danach' },
+  { name: 'ENTRYPOINT', text: 'Programm beim Start' },
   { name: 'CMD', text: 'seine Standard-Argumente' },
 ]
 
@@ -218,6 +223,68 @@ export function DockerfileBlock() {
       </Slide>
 
       <Slide>
+        <ContentLayout title="Wer läuft im Container?">
+          <StepCode
+            language="shell"
+            lines={[
+              '$ docker run --rm --entrypoint whoami ubuntu:24.04',
+              'root',
+              '$ docker run --rm --entrypoint whoami banner',
+              'ubuntu',
+            ]}
+            steps="1-2|3-4"
+          />
+          <WhenDeckReady>
+            <Fragment as="ul" className="points">
+              <li>
+                Ohne <code>USER</code> läuft alles im Container als root. Aus Linux
+                Fundamentals wisst ihr: root im Container hat UID 0, dieselbe Zahl wie
+                root auf dem Host.
+              </li>
+              <li>
+                Docker schränkt diesen root zwar ein. Findet aber jemand eine Lücke in
+                eurer Anwendung, hat er im Container alle Rechte - auch in jedem Ordner,
+                den ihr einhängt.
+              </li>
+            </Fragment>
+            <Fragment as="p" className="note">
+              <code>--entrypoint</code> ersetzt das Programm aus dem Dockerfile, hier
+              durch <code>whoami</code>.
+            </Fragment>
+          </WhenDeckReady>
+        </ContentLayout>
+      </Slide>
+
+      <Slide>
+        <ContentLayout title="USER: ab hier mit weniger Rechten">
+          <StepCode
+            language="dockerfile"
+            lines={bannerLines}
+            steps={userSteps}
+            className="code--dense"
+          />
+          <WhenDeckReady>
+            <Fragment as="ul" className="points">
+              <li>
+                Bis <code>USER</code> läuft alles als root, und <code>apt-get</code>{' '}
+                braucht das. Danach gilt <code>ubuntu</code>: für weitere <code>RUN</code>
+                , für ENTRYPOINT und CMD, auch für <code>docker exec</code>.
+              </li>
+              <li>
+                <code>ubuntu:24.04</code> bringt den Benutzer <code>ubuntu</code> (UID
+                1000) mit, die .NET-Images den Benutzer <code>app</code>. Fehlt einer,
+                legt ihr ihn mit <code>useradd</code> an.
+              </li>
+              <li>
+                <code>banner.sh</code> gehört weiter root. <code>ubuntu</code> darf es
+                lesen und ausführen, aber nicht ändern - genau so soll es sein.
+              </li>
+            </Fragment>
+          </WhenDeckReady>
+        </ContentLayout>
+      </Slide>
+
+      <Slide>
         <ContentLayout title="Der Build-Kontext und .dockerignore">
           <ul className="points">
             <li>
@@ -253,8 +320,8 @@ export function DockerfileBlock() {
           <>
             Schreibt daneben ein <code>Dockerfile</code>: auf Basis von{' '}
             <code>ubuntu:24.04</code>, mit <code>curl</code>, <code>jq</code> und{' '}
-            <code>ca-certificates</code>, mit dem Skript als ENTRYPOINT und Regensburg als
-            Standard-Stadt.
+            <code>ca-certificates</code>, mit dem Skript als ENTRYPOINT, Regensburg als
+            Standard-Stadt und dem Benutzer <code>ubuntu</code>.
           </>,
           <>
             Baut es als <code>wetter:1.0</code> und <code>wetter:latest</code>.
@@ -323,6 +390,10 @@ export function DockerfileBlock() {
             <p className="note">
               Ausgabe z. B. <code>Regensburg: 2.5 °C, Wind 10.2 km/h</code>. Mehrere
               Wörter hinter dem Image werden zur Stadt: <code>wetter Bad Tölz</code>.
+            </p>
+            <p className="note">
+              <code>docker run --rm --entrypoint whoami wetter</code> zeigt{' '}
+              <code>ubuntu</code>.
             </p>
           </Spoiler>
         </ContentLayout>

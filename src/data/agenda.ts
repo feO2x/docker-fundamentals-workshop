@@ -97,7 +97,7 @@ export const AGENDA: AgendaBlock[] = [
     praxis: 20,
     kind: 'content',
     summary:
-      'Ein eigenes Image, Anweisung für Anweisung: FROM, RUN, COPY, WORKDIR, ENV sowie ENTRYPOINT und CMD, die gern verwechselt werden. Lange RUN-Befehle über mehrere Zeilen, der Build-Kontext und mehrere Tags pro Build.',
+      'Ein eigenes Image, Anweisung für Anweisung: FROM, RUN, COPY, WORKDIR, ENV sowie ENTRYPOINT und CMD, die gern verwechselt werden. Mit USER läuft eure Anwendung nicht als root. Lange RUN-Befehle über mehrere Zeilen, der Build-Kontext und mehrere Tags pro Build.',
     question:
       'Bisher habt ihr fremde Images benutzt. Wie beschreibt ihr ein Image für eure eigene Software?',
     commands: [
@@ -106,13 +106,14 @@ export const AGENDA: AgendaBlock[] = [
       'COPY',
       'WORKDIR',
       'ENV',
+      'USER',
       'ENTRYPOINT',
       'CMD',
       'docker build -t',
       '.dockerignore',
     ],
     praxisNote:
-      'Ein Image auf Basis von ubuntu:24.04 bauen, das ein kleines Skript samt seiner Werkzeuge curl und jq mitbringt, und es mit verschiedenen Argumenten starten.',
+      'Ein Image auf Basis von ubuntu:24.04 bauen, das ein kleines Skript samt seiner Werkzeuge curl und jq mitbringt, als Benutzer ubuntu statt root läuft und sich mit verschiedenen Argumenten starten lässt.',
   },
   {
     id: 'layer-caching',
@@ -179,7 +180,7 @@ export const AGENDA: AgendaBlock[] = [
       'Ein Container läuft, aber niemand erreicht ihn, und nach einem Neustart sind die Daten weg. Was ist hier schiefgegangen?',
     commands: ['docker build', 'docker run -p -v', 'docker logs', 'docker push'],
     praxisNote:
-      'Ein absichtlich kaputtes Setup reparieren: falsche Layer-Reihenfolge, nicht erreichbarer Port, Daten im Container statt im Volume und ein aufgeblähtes einstufiges Image. Danach das Image taggen und in die lokale Registry pushen.',
+      'Ein absichtlich kaputtes Setup reparieren: falsche Layer-Reihenfolge, nicht erreichbarer Port, Daten im Container statt im Volume, ein aufgeblähtes einstufiges Image und eine App, die als root läuft. Danach das Image taggen und in die lokale Registry pushen.',
   },
   {
     id: 'ausblick',

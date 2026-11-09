@@ -5,5 +5,6 @@ RUN apt-get update \
 WORKDIR /app
 COPY --chmod=755 wetter.sh .
 ENV EINHEIT=celsius
+USER ubuntu
 ENTRYPOINT ["./wetter.sh"]
 CMD ["Regensburg"]

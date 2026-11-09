@@ -90,6 +90,10 @@ jobs:
           docker run --rm banner
           docker run --rm banner Hallo Welt
           docker run --rm -e SCHRIFT=slant banner Hallo
+          # Ohne USER wäre es root, mit USER ubuntu nicht mehr.
+          docker run --rm --entrypoint whoami ubuntu:24.04
+          test "$(docker run --rm --entrypoint whoami banner)" = ubuntu
+          docker run --rm --entrypoint ls banner -l /app
           docker image ls banner
 
       - name: Das erste Dockerfile (Wetter, Lösung)
@@ -100,6 +104,7 @@ jobs:
           docker run --rm wetter Bad Tölz
           docker run --rm -e EINHEIT=fahrenheit wetter Hamburg
           if docker run --rm wetter Gibtsnichtstadtxyz; then exit 1; fi
+          test "$(docker run --rm --entrypoint whoami wetter)" = ubuntu
           docker image ls wetter
           # Ohne ca-certificates kann curl kein HTTPS. Die Meldung steht auf den Folien.
           sed 's/ ca-certificates//' loesungen/wetter.Dockerfile > "$RUNNER_TEMP/ohne-zertifikate.Dockerfile"
@@ -124,6 +129,7 @@ jobs:
             echo 'RUN apt-get update \'
             echo '    && apt-get install -y --no-install-recommends curl jq ca-certificates \'
             echo '    && rm -rf /var/lib/apt/lists/*'
+            echo 'USER ubuntu'
             echo 'ENTRYPOINT ["./wetter.sh"]'
             echo 'CMD ["Regensburg"]'
           } > "$RUNNER_TEMP/falsch.Dockerfile"
@@ -153,12 +159,15 @@ jobs:
           docker run --rm hallo:einstufig
           docker build -t hallo:mehrstufig -f loesungen/hallo-dotnet.Dockerfile hallo-dotnet
           docker run --rm hallo:mehrstufig
+          test "$(docker run --rm --entrypoint whoami hallo:mehrstufig)" = app
           for variante in alpine noble-chiseled; do
             sed "s|dotnet/runtime:10.0\$|dotnet/runtime:10.0-$variante|" loesungen/hallo-dotnet.Dockerfile \
               > "$RUNNER_TEMP/$variante.Dockerfile"
             grep "runtime:10.0-$variante" "$RUNNER_TEMP/$variante.Dockerfile"
             docker build -q -t "hallo:$variante" -f "$RUNNER_TEMP/$variante.Dockerfile" hallo-dotnet
             docker run --rm "hallo:$variante"
+            # chiseled hat kein whoami, darum über die Konfiguration des Images.
+            test "$(docker image inspect --format '{{.Config.User}}' "hallo:$variante")" = 1654
           done
           docker image ls hallo
           docker pull -q mcr.microsoft.com/dotnet/runtime:10.0
@@ -173,6 +182,7 @@ jobs:
           # Die App lauscht nur auf localhost im Container und ist von außen nicht erreichbar.
           if curl -sS --max-time 5 localhost:8080; then exit 1; fi
           docker logs kaputt
+          test "$(docker exec kaputt whoami)" = root
           docker rm -f kaputt
 
       - name: Abschlussübung (Lösung)
@@ -185,6 +195,8 @@ jobs:
           docker run -d --name zaehler -p 8080:8080 -v zaehler-daten:/app/daten zaehler:1.0
           curl -fsS --retry 15 --retry-all-errors --retry-delay 1 localhost:8080 | grep 'Nr. 3'
           docker logs zaehler
+          test "$(docker exec zaehler whoami)" = app
+          docker exec zaehler ls -ln /app/daten
           docker tag zaehler:1.0 localhost:5050/zaehler:1.0
           docker push localhost:5050/zaehler:1.0
           docker image ls zaehler
@@ -193,6 +205,21 @@ jobs:
           docker build --progress=plain -t zaehler:1.0 -f loesungen/zaehler.Dockerfile zaehler 2>&1 | tee "$RUNNER_TEMP/build.log"
           grep -E 'RUN dotnet restore' -A1 "$RUNNER_TEMP/build.log" | grep CACHED
           git checkout zaehler/Program.cs
+
+      - name: Abschlussübung (Volume aus einem Lauf als root)
+        run: |
+          # Wer erst das Volume ergänzt und später USER, hat besuche.txt noch als root.
+          grep -v -e '^USER' -e '^RUN mkdir' loesungen/zaehler.Dockerfile > "$RUNNER_TEMP/root.Dockerfile"
+          docker build -q -t zaehler:root -f "$RUNNER_TEMP/root.Dockerfile" zaehler
+          docker run -d --name alt -p 8080:8080 -v zaehler-alt:/app/daten zaehler:root
+          curl -fsS --retry 15 --retry-all-errors --retry-delay 1 localhost:8080
+          docker rm -f alt
+          docker build -q -t zaehler:1.0 -f loesungen/zaehler.Dockerfile zaehler
+          docker run -d --name alt -p 8080:8080 -v zaehler-alt:/app/daten zaehler:1.0
+          status=$(curl -sS -o /dev/null -w '%{http_code}' --retry 15 --retry-all-errors --retry-delay 1 localhost:8080)
+          test "$status" = 500
+          docker logs alt 2>&1 | grep 'UnauthorizedAccessException'
+          docker rm -f alt
 
       - name: Ausblick
         run: |

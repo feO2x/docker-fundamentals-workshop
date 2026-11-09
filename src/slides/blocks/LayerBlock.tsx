@@ -16,6 +16,7 @@ const history = [
   'CREATED BY                                      SIZE',
   'CMD ["Regensburg"]                              0B',
   'ENTRYPOINT ["./wetter.sh"]                      0B',
+  'USER ubuntu                                     0B',
   'ENV EINHEIT=celsius                             0B',
   'COPY --chmod=755 wetter.sh . # buildkit         12.3kB',
   'WORKDIR /app                                    8.19kB',
@@ -42,15 +43,15 @@ export function LayerBlock() {
           <StepCode
             language="shell"
             lines={history}
-            steps="1-10|6-8|9-10"
+            steps="1-11|7-9|10-11"
             className="code--dense"
           />
           <WhenDeckReady>
             <Fragment as="ul" className="points">
               <li>
                 <code>RUN</code>, <code>COPY</code> und <code>WORKDIR</code> ändern
-                Dateien und legen eine Schicht an. <code>ENV</code> und <code>CMD</code>{' '}
-                sind nur Einstellungen, 0 Byte.
+                Dateien und legen eine Schicht an. <code>ENV</code>, <code>USER</code> und{' '}
+                <code>CMD</code> sind nur Einstellungen, 0 Byte.
               </li>
               <li>
                 Die untersten Schichten stammen aus <code>ubuntu:24.04</code>. Euer Image

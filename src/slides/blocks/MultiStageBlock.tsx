@@ -152,7 +152,7 @@ export function MultiStageBlock() {
                 <td>10.0-noble-chiseled</td>
                 <td>Ubuntu, ausgedünnt</td>
                 <td>
-                  klein, ohne Shell und Paketmanager, läuft nicht als root.{' '}
+                  klein, ohne Shell und Paketmanager, läuft von sich aus als app.{' '}
                   <code>docker exec … bash</code> geht nicht mehr
                 </td>
               </Fragment>
@@ -176,8 +176,9 @@ export function MultiStageBlock() {
           </>,
           <>
             Schreibt ein <code>Dockerfile.mehrstufig</code> mit einer Build-Stage auf{' '}
-            <code>sdk:10.0</code> und einer letzten Stage auf <code>runtime:10.0</code>.
-            Baut es mit <code>-f</code> als <code>hallo:mehrstufig</code>.
+            <code>sdk:10.0</code> und einer letzten Stage auf <code>runtime:10.0</code>,
+            die als <code>app</code> läuft: <code>USER $APP_UID</code>. Baut es mit{' '}
+            <code>-f</code> als <code>hallo:mehrstufig</code>.
           </>,
           <>
             Vergleicht die Größen mit <code>docker image ls hallo</code>.

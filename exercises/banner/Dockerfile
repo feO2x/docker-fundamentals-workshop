@@ -5,5 +5,6 @@ RUN apt-get update \
 WORKDIR /app
 COPY --chmod=755 banner.sh .
 ENV SCHRIFT=standard
+USER ubuntu
 ENTRYPOINT ["./banner.sh"]
 CMD ["Moin"]
