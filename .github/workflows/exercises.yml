@@ -208,15 +208,16 @@ jobs:
 
       - name: Abschlussübung (Volume aus einem Lauf als root)
         run: |
+          # Port 8081, weil zaehler aus dem Schritt davor noch auf 8080 läuft.
           # Wer erst das Volume ergänzt und später USER, hat besuche.txt noch als root.
           grep -v -e '^USER' -e '^RUN mkdir' loesungen/zaehler.Dockerfile > "$RUNNER_TEMP/root.Dockerfile"
           docker build -q -t zaehler:root -f "$RUNNER_TEMP/root.Dockerfile" zaehler
-          docker run -d --name alt -p 8080:8080 -v zaehler-alt:/app/daten zaehler:root
-          curl -fsS --retry 15 --retry-all-errors --retry-delay 1 localhost:8080
+          docker run -d --name alt -p 8081:8080 -v zaehler-alt:/app/daten zaehler:root
+          curl -fsS --retry 15 --retry-all-errors --retry-delay 1 localhost:8081
           docker rm -f alt
           docker build -q -t zaehler:1.0 -f loesungen/zaehler.Dockerfile zaehler
-          docker run -d --name alt -p 8080:8080 -v zaehler-alt:/app/daten zaehler:1.0
-          status=$(curl -sS -o /dev/null -w '%{http_code}' --retry 15 --retry-all-errors --retry-delay 1 localhost:8080)
+          docker run -d --name alt -p 8081:8080 -v zaehler-alt:/app/daten zaehler:1.0
+          status=$(curl -sS -o /dev/null -w '%{http_code}' --retry 15 --retry-all-errors --retry-delay 1 localhost:8081)
           test "$status" = 500
           docker logs alt 2>&1 | grep 'UnauthorizedAccessException'
           docker rm -f alt
