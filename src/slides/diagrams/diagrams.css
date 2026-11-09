@@ -202,8 +202,81 @@
   flex-direction: column;
   gap: 8px;
   padding: 10px;
-  border: 1px dashed var(--border-strong);
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius);
+}
+
+/* Container in der Farbe von „Container“ auf „Drei Begriffe“, das Image neutral. */
+.container-layers__container {
+  border-color: var(--praxis-border);
+}
+
+.container-layers__container .guest__label {
+  color: var(--praxis);
+}
+
+/* Was der Prozess im Container sieht: keine eigene Ablage, nur eine Sicht. */
+.box--view {
+  border-style: dashed;
+  border-color: var(--praxis-border);
+  background: transparent;
+}
+
+/* ---------- Schichten eines Images ---------- */
+
+.reveal .image-layers {
+  margin: 0;
+  font-size: 0.65em;
+}
+
+.image-layers figcaption {
+  margin-bottom: 8px;
+  color: var(--text-dim);
+  font-size: 0.85em;
+}
+
+.image-layers__body {
+  display: grid;
+  grid-template-columns: 1fr 220px;
+  gap: 6px 16px;
+}
+
+.reveal .image-layers__stack {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.image-layers__layer {
+  display: grid;
+  grid-template-columns: 12ch 1fr auto;
+  gap: 20px;
+  padding: 6px 16px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.image-layers__layer code {
+  color: var(--text-dim);
+}
+
+.image-layers__size {
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* Klammer neben den geteilten Schichten. */
+.image-layers__shared {
+  display: flex;
+  align-items: center;
+  padding-left: 16px;
+  border-left: 3px solid var(--accent);
+  color: var(--accent);
+  font-weight: 600;
 }
 
 /* ---------- Lebenszyklus ---------- */

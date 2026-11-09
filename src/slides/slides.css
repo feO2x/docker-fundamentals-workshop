@@ -475,6 +475,10 @@
   align-items: start;
 }
 
+.spoiler__solution > * + .points {
+  margin-top: 24px;
+}
+
 .reveal .spoiler > * {
   width: 100%;
 }

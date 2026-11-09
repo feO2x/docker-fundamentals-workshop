@@ -45,6 +45,8 @@ jobs:
           docker exec eins sh -c 'echo hallo > /tmp/datei'
           docker exec eins cat /tmp/datei
           if docker exec zwei cat /tmp/datei; then exit 1; fi
+          # SIZE ist nur die beschreibbare Schicht, virtual zählt das Image mit.
+          docker ps -s
           docker rm -f eins zwei
 
       - name: Container-Lebenszyklus

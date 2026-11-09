@@ -3,6 +3,7 @@ import { BlockStack } from '../BlockStack'
 import { ContentLayout } from '../ContentLayout'
 import { ContainerLayers } from '../diagrams/ContainerLayers'
 import { Flow } from '../diagrams/Flow'
+import { ImageLayers } from '../diagrams/ImageLayers'
 import { ExerciseSlide } from '../ExerciseSlide'
 import { PYTHON_312 } from '../images'
 import { RefAnatomy } from '../RefAnatomy'
@@ -79,6 +80,24 @@ export function KonzepteBlock() {
       </Slide>
 
       <Slide>
+        <ContentLayout title="Ein Image besteht aus Schichten">
+          <ImageLayers sharedIndex={1} />
+          <ul className="points">
+            <Fragment as="li" index={0}>
+              Jede Schicht enthält nur, was ein Bauschritt hinzugefügt oder geändert hat.
+              Übereinandergelegt ergeben sie ein Dateisystem - wie Folien auf dem
+              Overheadprojektor.
+            </Fragment>
+            <Fragment as="li" index={1}>
+              Schichten ändern sich nie. Haben zwei Images dieselbe Schicht, lädt und
+              speichert Docker sie nur einmal: Beim Pull steht dann{' '}
+              <code>Already exists</code>.
+            </Fragment>
+          </ul>
+        </ContentLayout>
+      </Slide>
+
+      <Slide>
         <ContentLayout title="Eine Image-Referenz lesen">
           <RefAnatomy
             parts={[
@@ -146,6 +165,11 @@ export function KonzepteBlock() {
             Das Image ändert sich nie. Jeder Container schreibt in seine eigene Schicht,
             und die verschwindet mit ihm.
           </Fragment>
+          <Fragment as="p" className="note">
+            Ändert ein Container eine Datei aus dem Image, kopiert Docker sie erst dann in
+            seine Schicht. Beim Start wird nichts kopiert, deshalb ist ein Container
+            sofort da.
+          </Fragment>
         </ContentLayout>
       </Slide>
 
@@ -171,6 +195,10 @@ export function KonzepteBlock() {
           <>
             Sucht sie in <code>zwei</code> mit <code>cat /tmp/datei</code>.
           </>,
+          <>
+            Schaut in einem dritten Terminal mit <code>docker ps -s</code>, wie groß die
+            beiden Container sind.
+          </>,
         ]}
       >
         <p className="question">
@@ -188,15 +216,25 @@ export function KonzepteBlock() {
               lines={[
                 'root@zwei:/# cat /tmp/datei',
                 'cat: /tmp/datei: No such file or directory',
+                '',
+                '$ docker ps -s',
+                'CONTAINER ID   IMAGE          …   NAMES   SIZE',
+                '8bfd87711de2   ubuntu:24.04   …   zwei    4.1kB (virtual 87.7MB)',
+                '015837648f58   ubuntu:24.04   …   eins    12.3kB (virtual 87.7MB)',
               ]}
               steps={false}
-              className="code--small"
+              className="code--dense"
             />
             <ul className="points">
               <li>
-                Beide Container teilen sich die Schichten von <code>ubuntu:24.04</code>{' '}
-                nur zum Lesen. <code>/tmp/datei</code> liegt in der beschreibbaren Schicht
-                von <code>eins</code>.
+                Beide Container lesen die Schicht von <code>ubuntu:24.04</code>.{' '}
+                <code>/tmp/datei</code> liegt in der beschreibbaren Schicht von{' '}
+                <code>eins</code>.
+              </li>
+              <li>
+                <code>SIZE</code> ist nur die eigene Schicht, ein paar Kilobyte.{' '}
+                <code>virtual</code> zählt das Image mit, das nur einmal auf der Platte
+                liegt.
               </li>
               <li>
                 Mit <code>exit</code> endet <code>eins</code>, und <code>--rm</code>{' '}
