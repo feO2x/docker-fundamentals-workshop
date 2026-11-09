@@ -23,3 +23,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# .NET build output of the exercises (e.g. from the editor's C# extension)
+bin/
+obj/
