@@ -26,11 +26,11 @@ export function KonzepteBlock() {
             steps={[
               {
                 title: 'Registry',
-                text: 'das Lager: Docker Hub, mcr.microsoft.com, unser Harbor',
+                text: 'das Lager: unser Harbor hub.gwvs.de, Docker Hub, mcr.microsoft.com, GitHub Registry...',
               },
               {
                 title: 'Image',
-                text: 'der Bauplan: alle Dateien plus Startbefehl, unveränderlich',
+                text: 'der unveränderliche Bauplan: alle Dateien plus Startbefehl',
               },
               {
                 title: 'Container',

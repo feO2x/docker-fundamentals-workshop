@@ -11,7 +11,6 @@ import { WhenDeckReady } from '../WhenDeckReady'
 
 const end = SCHEDULE[SCHEDULE.length - 1].end
 const finalExercise = slotOf('abschlussuebung')
-const concepts = slotOf('konzepte')
 
 // Die Übungsdateien liegen in exercises/ dieses Repos.
 const EXERCISES_REPO = 'https://github.com/feO2x/docker-fundamentals-workshop.git'
@@ -85,7 +84,7 @@ export function Opening() {
                 bis zur ersten Übung durch.
               </li>
               <li>
-                Was <code>docker pull</code> genau macht, klären wir um {concepts.start}.
+                Was <code>docker pull</code> genau macht, erklären wir später genau.
               </li>
             </Fragment>
             <Fragment as="p" className="note">
