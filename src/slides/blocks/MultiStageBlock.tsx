@@ -71,7 +71,7 @@ export function MultiStageBlock() {
           <StepCode language="dockerfile" lines={singleStageLines} steps={false} />
           <ul className="points">
             <Fragment as="li">
-              Funktioniert, und ihr braucht trotzdem kein SDK auf eurem Rechner.
+              Funktioniert und ihr braucht trotzdem kein SDK auf eurem Rechner.
             </Fragment>
             <Fragment as="li">
               Aber im fertigen Image stecken das ganze SDK, euer Quellcode und alle
@@ -160,8 +160,7 @@ export function MultiStageBlock() {
           </table>
           <Fragment as="p" className="note">
             Weniger im Image heißt weniger zu patchen. Chiseled ist für Produktion eine
-            gute Wahl, solange ihr zum Debuggen keine Shell braucht. Debian-Images gibt es
-            seit .NET 10 nicht mehr.
+            gute Wahl, solange ihr zum Debuggen keine Shell braucht.
           </Fragment>
         </ContentLayout>
       </Slide>
