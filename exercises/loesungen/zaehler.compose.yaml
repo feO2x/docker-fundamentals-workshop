@@ -1,0 +1,28 @@
+# Gehört als compose.yaml nach exercises/zaehler, neben das reparierte Dockerfile.
+services:
+  zaehler:
+    build: .
+    # nur für den optionalen Push
+    image: localhost:5050/zaehler:1.0
+    ports:
+      - '8080:8080'
+    environment:
+      ConnectionStrings__Zaehler:
+        Host=db;Username=postgres;Password=geheim
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:18
+    environment:
+      POSTGRES_PASSWORD: geheim
+    volumes:
+      - db-daten:/var/lib/postgresql
+    healthcheck:
+      test: pg_isready -h localhost -U postgres
+      interval: 2s
+      timeout: 3s
+
+volumes:
+  db-daten:

@@ -1,0 +1,24 @@
+# Adminer, eine Weboberfläche für Datenbanken, und eine PostgreSQL-Datenbank.
+# Das Beispiel des Blocks Docker Compose.
+services:
+  adminer:
+    image: adminer
+    ports:
+      - '8080:8080'
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:18
+    environment:
+      POSTGRES_PASSWORD: geheim
+    volumes:
+      - db-daten:/var/lib/postgresql
+    healthcheck:
+      test: pg_isready -h localhost -U postgres
+      interval: 2s
+      timeout: 3s
+
+volumes:
+  db-daten:

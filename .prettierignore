@@ -7,3 +7,6 @@ package-lock.json
 # Von Guided Coding verwaltete Skills
 .agents/
 .claude/
+
+# Die Folien zeigen die Compose-Dateien Zeile für Zeile, ihre Umbrüche sind Absicht
+exercises/**/*.yaml

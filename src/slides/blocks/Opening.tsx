@@ -29,8 +29,8 @@ export function Opening() {
       <Slide>
         <ContentLayout title="Euer Ziel für heute">
           <p className="lede lede--strong">
-            Um {finalExercise.start} bringt ihr eine kleine Anwendung in ein eigenes
-            Image, startet sie als Container und schiebt das Image in eine Registry.
+            Um {finalExercise.start} bringt ihr eine kleine Anwendung samt Datenbank mit
+            eigenem Image und Docker Compose zum Laufen.
           </p>
           <Fragment as="p" className="note">
             Dafür baut ihr auf einem Gedanken auf, den ihr aus Linux Fundamentals schon

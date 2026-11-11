@@ -93,8 +93,8 @@ export const AGENDA: AgendaBlock[] = [
   {
     id: 'dockerfile',
     title: 'Das erste Dockerfile',
-    duration: 35,
-    praxis: 20,
+    duration: 30,
+    praxis: 15,
     kind: 'content',
     summary:
       'Ein eigenes Image, Anweisung für Anweisung: FROM, RUN, COPY, WORKDIR, ENV sowie ENTRYPOINT und CMD, die gern verwechselt werden. Mit USER läuft eure Anwendung nicht als root. Lange RUN-Befehle über mehrere Zeilen, der Build-Kontext und mehrere Tags pro Build.',
@@ -146,8 +146,8 @@ export const AGENDA: AgendaBlock[] = [
   {
     id: 'multi-stage',
     title: 'Multi-Stage-Builds',
-    duration: 25,
-    praxis: 15,
+    duration: 20,
+    praxis: 10,
     kind: 'content',
     summary:
       'Multi-Stage-Builds trennen Bauen und Ausführen: Das .NET SDK kompiliert in der ersten Stage, ins fertige Image kommt nur die letzte. So baut ihr eine .NET-App, ohne selbst ein SDK installiert zu haben. Dazu die Wahl des Basis-Images: Ubuntu, Alpine oder chiseled.',
@@ -158,39 +158,51 @@ export const AGENDA: AgendaBlock[] = [
       'Eine kleine .NET-App erst einstufig auf dem SDK-Image bauen, dann in eine Build- und eine Runtime-Stage aufteilen und die Größe beider Images vergleichen.',
   },
   {
-    id: 'nuke-extensions',
-    title: 'Praxisbeispiel: NukeExtensions',
-    duration: 10,
+    id: 'compose',
+    title: 'Docker Compose',
+    duration: 15,
     kind: 'content',
     summary:
-      'Wie unsere C#-Projekte ihre Images bauen: NukeExtensions kompiliert auf dem Host, das Dockerfile kopiert nur die fertigen DLLs ins Runtime-Image und setzt die Standard-Labels nach OCI-Standard. Warum das schneller ist als ein Multi-Stage-Build und was es kostet.',
+      'Eine Anwendung kommt selten allein. Docker Compose beschreibt mehrere Container samt Netzwerk und Volumes in einer Datei. Im selben Netzwerk erreichen sich Container über ihren Namen, ein Health Check zeigt, ob die Datenbank wirklich bereit ist, und depends_on startet die App erst dann.',
     question:
-      'In unseren Projekten gibt es keinen Multi-Stage-Build. Warum eigentlich nicht?',
-    commands: ['LABEL', 'COPY', 'docker image inspect'],
+      'Eure App braucht eine Datenbank. Wie startet ihr beides zusammen, und zwar in der richtigen Reihenfolge?',
+    commands: [
+      'docker network create',
+      'docker compose up -d',
+      'docker compose ps',
+      'docker compose logs',
+      'docker compose down',
+      'healthcheck',
+      'depends_on',
+    ],
   },
   {
     id: 'abschlussuebung',
     title: 'Abschlussübung',
-    duration: 30,
-    praxis: 30,
+    duration: 40,
+    praxis: 40,
     kind: 'content',
     summary:
-      'Alles aus dem Workshop an einem Stück: Ein Kollege hat einen kleinen Besucherzähler containerisiert, aber nichts davon klappt richtig. Ihr findet die Fehler, bringt die Anwendung als Container zum Laufen und schiebt das Image in die Registry.',
+      'Alles aus dem Workshop an einem Stück: Ein Kollege hat einen kleinen Besucherzähler samt PostgreSQL-Datenbank mit Docker Compose aufgesetzt, aber nichts davon klappt richtig. Ihr findet die Fehler in Dockerfile und compose.yaml und bringt beides zum Laufen.',
     question:
-      'Ein Container läuft, aber niemand erreicht ihn, und nach einem Neustart sind die Daten weg. Was ist hier schiefgegangen?',
-    commands: ['docker build', 'docker run -p -v', 'docker logs', 'docker push'],
+      'Die App findet ihre Datenbank nicht, und nach einem Neustart sind die Daten weg. Was ist hier schiefgegangen?',
+    commands: [
+      'docker compose up -d --build',
+      'docker compose ps -a',
+      'docker compose logs',
+      'docker compose down -v',
+      'docker compose push',
+    ],
     praxisNote:
-      'Ein absichtlich kaputtes Setup reparieren: falsche Layer-Reihenfolge, nicht erreichbarer Port, Daten im Container statt im Volume, ein aufgeblähtes einstufiges Image und eine App, die als root läuft. Danach das Image taggen und in die lokale Registry pushen.',
+      'Ein absichtlich kaputtes Setup reparieren: ein aufgeblähtes einstufiges Image, eine falsche Layer-Reihenfolge, eine App, die als root läuft, eine Datenbank unter localhost, eine App, die nicht auf die Datenbank wartet, und Daten ohne Volume. Wer fertig ist, pusht das Image in die lokale Registry.',
   },
   {
-    id: 'ausblick',
-    title: 'Ausblick & Fragen',
-    duration: 15,
+    id: 'fragen',
+    title: 'Fragen',
+    duration: 10,
     kind: 'buffer',
-    summary:
-      'Je ein kurzer Blick auf Docker Compose, Netzwerke, Health Checks und Multi-Arch-Images. Dazu offene Fragen und Tipps zum Weiterlernen.',
-    question: 'Was nehmt ihr mit aus dem Workshop?',
-    commands: ['docker compose up', 'docker network', 'HEALTHCHECK', '--platform'],
+    summary: 'Zeit für eure Fragen und Tipps zum Weiterlernen.',
+    question: 'Was ist noch offen, und was nehmt ihr mit?',
   },
 ]
 

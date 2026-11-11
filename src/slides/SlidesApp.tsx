@@ -3,13 +3,13 @@ import type { RevealConfig } from 'reveal.js'
 import RevealHighlight from 'reveal.js/plugin/highlight'
 import { ThemeToggle } from '../components/ThemeToggle'
 import { AbschlussBlock } from './blocks/AbschlussBlock'
-import { AusblickBlock } from './blocks/AusblickBlock'
+import { ComposeBlock } from './blocks/ComposeBlock'
 import { DockerfileBlock } from './blocks/DockerfileBlock'
+import { FragenBlock } from './blocks/FragenBlock'
 import { KonzepteBlock } from './blocks/KonzepteBlock'
 import { LayerBlock } from './blocks/LayerBlock'
 import { LebenszyklusBlock } from './blocks/LebenszyklusBlock'
 import { MultiStageBlock } from './blocks/MultiStageBlock'
-import { NukeExtensionsBlock } from './blocks/NukeExtensionsBlock'
 import { Opening } from './blocks/Opening'
 import { RegistryBlock } from './blocks/RegistryBlock'
 import { VolumesBlock } from './blocks/VolumesBlock'
@@ -49,12 +49,12 @@ export default function SlidesApp() {
         <LayerBlock />
         <RegistryBlock />
         <BreakSlide blockId="pause-2">
-          Lasst die Registry laufen, die braucht ihr in der Abschlussübung wieder.
+          Lasst die Registry laufen, die braucht ihr nachher noch einmal.
         </BreakSlide>
         <MultiStageBlock />
-        <NukeExtensionsBlock />
+        <ComposeBlock />
         <AbschlussBlock />
-        <AusblickBlock />
+        <FragenBlock />
       </Deck>
     </>
   )

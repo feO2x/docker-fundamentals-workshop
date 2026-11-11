@@ -174,70 +174,115 @@ jobs:
           docker pull -q mcr.microsoft.com/dotnet/aspnet:10.0
           docker image ls 'mcr.microsoft.com/dotnet/*'
 
-      - name: Abschlussübung (kaputtes Setup)
-        run: |
-          docker build -t zaehler:kaputt zaehler
-          docker run -d --name kaputt -p 8080:8080 zaehler:kaputt
-          sleep 5
-          # Die App lauscht nur auf localhost im Container und ist von außen nicht erreichbar.
-          if curl -sS --max-time 5 localhost:8080; then exit 1; fi
-          docker logs kaputt
-          test "$(docker exec kaputt whoami)" = root
-          docker rm -f kaputt
-
-      - name: Abschlussübung (Lösung)
-        run: |
-          docker build -t zaehler:1.0 -f loesungen/zaehler.Dockerfile zaehler
-          docker run -d --name zaehler -p 8080:8080 -v zaehler-daten:/app/daten zaehler:1.0
-          curl -fsS --retry 15 --retry-all-errors --retry-delay 1 localhost:8080
-          curl -fsS localhost:8080
-          docker rm -f zaehler
-          docker run -d --name zaehler -p 8080:8080 -v zaehler-daten:/app/daten zaehler:1.0
-          curl -fsS --retry 15 --retry-all-errors --retry-delay 1 localhost:8080 | grep 'Nr. 3'
-          docker logs zaehler
-          test "$(docker exec zaehler whoami)" = app
-          docker exec zaehler ls -ln /app/daten
-          docker tag zaehler:1.0 localhost:5050/zaehler:1.0
-          docker push localhost:5050/zaehler:1.0
-          docker image ls zaehler
-          # Eine Änderung am Code darf das Restore nicht neu auslösen.
-          echo '// geändert' >> zaehler/Program.cs
-          docker build --progress=plain -t zaehler:1.0 -f loesungen/zaehler.Dockerfile zaehler 2>&1 | tee "$RUNNER_TEMP/build.log"
-          grep -E 'RUN dotnet restore' -A1 "$RUNNER_TEMP/build.log" | grep CACHED
-          git checkout zaehler/Program.cs
-
-      - name: Abschlussübung (Volume aus einem Lauf als root)
-        run: |
-          # Port 8081, weil zaehler aus dem Schritt davor noch auf 8080 läuft.
-          # Wer erst das Volume ergänzt und später USER, hat besuche.txt noch als root.
-          grep -v -e '^USER' -e '^RUN mkdir' loesungen/zaehler.Dockerfile > "$RUNNER_TEMP/root.Dockerfile"
-          docker build -q -t zaehler:root -f "$RUNNER_TEMP/root.Dockerfile" zaehler
-          docker run -d --name alt -p 8081:8080 -v zaehler-alt:/app/daten zaehler:root
-          curl -fsS --retry 15 --retry-all-errors --retry-delay 1 localhost:8081
-          docker rm -f alt
-          docker build -q -t zaehler:1.0 -f loesungen/zaehler.Dockerfile zaehler
-          docker run -d --name alt -p 8081:8080 -v zaehler-alt:/app/daten zaehler:1.0
-          status=$(curl -sS -o /dev/null -w '%{http_code}' --retry 15 --retry-all-errors --retry-delay 1 localhost:8081)
-          test "$status" = 500
-          docker logs alt 2>&1 | grep 'UnauthorizedAccessException'
-          docker rm -f alt
-
-      - name: Ausblick
+      - name: Docker Compose (Netzwerk)
         run: |
           docker network create workshop
           docker network connect workshop registry
           docker run --rm --network workshop --entrypoint curl wetter:1.0 \
             -s http://registry:5000/v2/_catalog | tee "$RUNNER_TEMP/catalog"
-          grep -q zaehler "$RUNNER_TEMP/catalog"
-          # Der Health Check der Folie: nginx muss curl mitbringen.
-          printf '%s\n' 'FROM nginx' 'HEALTHCHECK --interval=2s --timeout=3s \' \
-            '    CMD curl -f http://localhost/ || exit 1' > "$RUNNER_TEMP/health.Dockerfile"
-          docker build -q -t nginx-health -f "$RUNNER_TEMP/health.Dockerfile" "$RUNNER_TEMP"
-          docker run -d --name health nginx-health
-          for _ in $(seq 1 15); do
-            status=$(docker inspect --format '{{.State.Health.Status}}' health)
-            [ "$status" = healthy ] && break
-            sleep 1
-          done
-          docker ps --filter name=health
-          test "$status" = healthy
+          grep -q wetter "$RUNNER_TEMP/catalog"
+
+      - name: Docker Compose (Adminer und Postgres)
+        working-directory: exercises/datenbank
+        run: |
+          docker compose up -d
+          docker compose ps
+          docker compose ps --format '{{.Service}} {{.Status}}' | grep 'db .*(healthy)'
+          curl -fsS --retry 15 --retry-all-errors --retry-delay 1 localhost:8080 | grep -o '<title>.*</title>'
+          # Adminer schlägt den Server db vor und erreicht ihn über den Namen des Dienstes.
+          curl -fsS localhost:8080 | grep "name='auth\[server\]' value='db'"
+          docker compose exec adminer php -r 'echo gethostbyname("db"), "\n";' | grep -E '^[0-9.]+$'
+          docker network ls
+          docker compose logs db | tail -3
+          # down lässt das Volume stehen, down -v löscht es.
+          docker compose down
+          docker volume ls | grep datenbank_db-daten
+          docker compose down -v
+          if docker volume ls | grep datenbank_db-daten; then exit 1; fi
+
+      - name: Abschlussübung (kaputtes Setup)
+        working-directory: exercises/zaehler
+        run: |
+          docker compose up -d --build
+          sleep 10
+          docker compose ps -a
+          # localhost ist der Container der App selbst, sie beendet sich.
+          docker compose logs zaehler 2>&1 | tee "$RUNNER_TEMP/kaputt.log"
+          grep 'Keine Verbindung zur Datenbank: Failed to connect to 127.0.0.1:5432' "$RUNNER_TEMP/kaputt.log"
+          test "$(docker compose ps -a --format '{{.State}}' zaehler)" = exited
+          test "$(docker run --rm --entrypoint whoami zaehler-zaehler)" = root
+          docker image ls zaehler-zaehler
+          docker compose down -v
+
+      - name: Abschlussübung (ohne Health Check)
+        working-directory: exercises/zaehler
+        run: |
+          # Nur localhost repariert: depends_on wartet nicht, bis Postgres bereit ist.
+          sed 's/Host=localhost/Host=db/' compose.yaml > "$RUNNER_TEMP/ohne-health.yaml"
+          compose() { docker compose -f "$RUNNER_TEMP/ohne-health.yaml" --project-directory . "$@"; }
+          compose up -d --build
+          sleep 10
+          compose ps -a
+          compose logs zaehler 2>&1 | tee "$RUNNER_TEMP/race.log"
+          grep -E 'Failed to connect to 172\.[0-9.]+:5432' "$RUNNER_TEMP/race.log"
+          # Beim zweiten Mal läuft Postgres schon, dann klappt es.
+          compose up -d
+          curl -fsS --retry 15 --retry-all-errors --retry-delay 1 localhost:8080
+          compose down -v
+
+      - name: Abschlussübung (Lösung)
+        working-directory: exercises/zaehler
+        run: |
+          cp ../loesungen/zaehler.Dockerfile Dockerfile
+          cp ../loesungen/zaehler.compose.yaml compose.yaml
+          docker compose up -d --build
+          docker compose ps
+          curl -fsS --retry 15 --retry-all-errors --retry-delay 1 localhost:8080
+          curl -fsS localhost:8080
+          docker compose down
+          docker compose up -d
+          curl -fsS --retry 15 --retry-all-errors --retry-delay 1 localhost:8080 | grep 'Nr. 3'
+          docker compose logs zaehler
+          test "$(docker compose exec zaehler whoami)" = app
+          docker image ls localhost:5050/zaehler
+          # Optional: pusht nur das selbst gebaute Image, nicht postgres:18.
+          docker compose push
+          curl -fsS localhost:5050/v2/_catalog | grep zaehler
+          # Eine Änderung am Code darf das Restore nicht neu auslösen.
+          echo '// geändert' >> Program.cs
+          docker compose build --progress=plain 2>&1 | tee "$RUNNER_TEMP/build.log"
+          grep -E 'RUN dotnet restore' -A1 "$RUNNER_TEMP/build.log" | grep CACHED
+          git checkout Program.cs
+          # Nach down -v startet alles beim ersten Versuch.
+          docker compose down -v
+          docker compose up -d
+          curl -fsS --retry 15 --retry-all-errors --retry-delay 1 localhost:8080 | grep 'Nr. 1'
+          docker compose down -v
+
+      - name: Abschlussübung (ohne Volume)
+        working-directory: exercises/zaehler
+        run: |
+          # compose.yaml ist hier noch die Lösung aus dem Schritt davor.
+          grep -v -e '^    volumes:' -e 'db-daten' -e '^volumes:' compose.yaml > "$RUNNER_TEMP/ohne-volume.yaml"
+          compose() { docker compose -f "$RUNNER_TEMP/ohne-volume.yaml" --project-directory . "$@"; }
+          compose up -d
+          curl -fsS --retry 15 --retry-all-errors --retry-delay 1 localhost:8080
+          curl -fsS localhost:8080 | grep 'Nr. 2'
+          compose down
+          compose up -d
+          curl -fsS --retry 15 --retry-all-errors --retry-delay 1 localhost:8080 | grep 'Nr. 1'
+          compose down -v
+
+      - name: Abschlussübung (Volume unter /var/lib/postgresql/data)
+        working-directory: exercises/zaehler
+        run: |
+          # Ab Postgres 18 bricht der Container mit dem Pfad vieler Anleitungen ab.
+          sed 's|/var/lib/postgresql$|/var/lib/postgresql/data|' compose.yaml > "$RUNNER_TEMP/alter-pfad.yaml"
+          grep '/var/lib/postgresql/data' "$RUNNER_TEMP/alter-pfad.yaml"
+          compose() { docker compose -f "$RUNNER_TEMP/alter-pfad.yaml" --project-directory . "$@"; }
+          if compose up -d > "$RUNNER_TEMP/alter-pfad.log" 2>&1; then exit 1; fi
+          cat "$RUNNER_TEMP/alter-pfad.log"
+          grep 'dependency failed to start' "$RUNNER_TEMP/alter-pfad.log"
+          compose logs db | grep 'in 18+, these Docker images are configured'
+          compose down -v
+          git checkout Dockerfile compose.yaml
