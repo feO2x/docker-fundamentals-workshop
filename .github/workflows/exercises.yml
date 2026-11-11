@@ -1,0 +1,288 @@
+name: Exercises
+
+# Spielt jede Übung so durch, wie die Folien sie vorgeben, und bricht ab, wenn
+# etwas nicht wie versprochen klappt. Die Logs liefern zugleich die
+# Beispielausgaben für die Folien (docker ps, Logs, Cache, Image-Größen).
+
+on:
+  push:
+    paths: [exercises/**, .github/workflows/exercises.yml]
+  pull_request:
+    paths: [exercises/**, .github/workflows/exercises.yml]
+  workflow_dispatch:
+
+concurrency:
+  group: exercises-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: exercises
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Versionen
+        run: docker version
+
+      - name: 'Warum Docker? / Konzepte'
+        run: |
+          docker run --rm python:3.12 python --version
+          docker run --rm python:3.13 python --version
+          docker run --rm python:3.12 cat /etc/os-release
+          docker pull ubuntu:24.04
+          docker image ls
+          docker image inspect ubuntu:24.04 --format '{{.Os}}/{{.Architecture}} {{.Size}} {{.RootFS.Layers}}'
+          # Zwei Container aus demselben Image sehen nicht die Dateien des anderen.
+          docker run -d --name eins ubuntu:24.04 sleep 60
+          docker run -d --name zwei ubuntu:24.04 sleep 60
+          docker exec eins sh -c 'echo hallo > /tmp/datei'
+          docker exec eins cat /tmp/datei
+          if docker exec zwei cat /tmp/datei; then exit 1; fi
+          # SIZE ist nur die beschreibbare Schicht, virtual zählt das Image mit.
+          docker ps -s
+          docker rm -f eins zwei
+
+      - name: Container-Lebenszyklus
+        run: |
+          docker run -d --name web -p 8080:80 nginx
+          sleep 2
+          docker ps
+          curl -fsS localhost:8080 | grep -o '<title>.*</title>'
+          docker logs -n 5 web
+          docker exec web ls -l /var/log/nginx
+          docker exec web sh -c "echo Hallo aus dem Container > /usr/share/nginx/html/index.html"
+          curl -fsS localhost:8080
+          docker stop web
+          docker ps -a
+          docker start web
+          sleep 1
+          # Die Änderung überlebt stop/start, erst docker rm löscht sie.
+          curl -fsS localhost:8080 | grep 'Hallo aus dem Container'
+          docker rm -f web
+          docker run --rm -e GRUSS=Moin ubuntu:24.04 printenv GRUSS
+
+      - name: Volumes und Bind Mounts
+        run: |
+          docker run -d --name web -p 8080:80 -v "${PWD}/website:/usr/share/nginx/html" nginx
+          sleep 2
+          curl -fsS localhost:8080 | grep 'Hallo aus dem Bind Mount'
+          sed -i 's/Hallo aus dem Bind Mount/Geändert auf dem Host/' website/index.html
+          curl -fsS localhost:8080 | grep 'Geändert auf dem Host'
+          git checkout website/index.html
+          docker rm -f web
+          docker volume create notizen
+          docker run --rm -v notizen:/daten ubuntu:24.04 sh -c "echo Hallo >> /daten/notiz.txt"
+          docker run --rm -v notizen:/daten ubuntu:24.04 sh -c "echo Welt >> /daten/notiz.txt"
+          test "$(docker run --rm -v notizen:/daten ubuntu:24.04 cat /daten/notiz.txt | wc -l)" = 2
+          docker volume ls
+          docker volume inspect notizen
+
+      - name: Das erste Dockerfile (Banner)
+        run: |
+          docker build -t banner:1.0 -t banner:latest banner
+          docker run --rm banner
+          docker run --rm banner Hallo Welt
+          docker run --rm -e SCHRIFT=slant banner Hallo
+          # Ohne USER wäre es root, mit USER ubuntu nicht mehr.
+          docker run --rm --entrypoint whoami ubuntu:24.04
+          test "$(docker run --rm --entrypoint whoami banner)" = ubuntu
+          docker run --rm --entrypoint ls banner -l /app
+          docker image ls banner
+
+      - name: Das erste Dockerfile (Wetter, Lösung)
+        run: |
+          docker build -t wetter:1.0 -t wetter:latest -f loesungen/wetter.Dockerfile wetter
+          docker run --rm wetter
+          docker run --rm wetter München
+          docker run --rm wetter Bad Tölz
+          docker run --rm -e EINHEIT=fahrenheit wetter Hamburg
+          if docker run --rm wetter Gibtsnichtstadtxyz; then exit 1; fi
+          test "$(docker run --rm --entrypoint whoami wetter)" = ubuntu
+          docker image ls wetter
+          # Ohne ca-certificates kann curl kein HTTPS. Die Meldung steht auf den Folien.
+          sed 's/ ca-certificates//' loesungen/wetter.Dockerfile > "$RUNNER_TEMP/ohne-zertifikate.Dockerfile"
+          docker build -q -t wetter:ohne-zertifikate -f "$RUNNER_TEMP/ohne-zertifikate.Dockerfile" wetter
+          if docker run --rm wetter:ohne-zertifikate; then exit 1; fi
+
+      - name: Layer und Caching
+        run: |
+          docker history wetter:1.0
+          echo '::group::Zweiter Build ohne Änderung'
+          docker build --progress=plain -t wetter:1.0 -f loesungen/wetter.Dockerfile wetter
+          echo '::endgroup::'
+          echo '# geändert' >> wetter/wetter.sh
+          echo '::group::Build nach Änderung am Skript (gute Reihenfolge)'
+          time docker build --progress=plain -t wetter:1.0 -f loesungen/wetter.Dockerfile wetter
+          echo '::endgroup::'
+          # Dasselbe mit COPY vor der Paketinstallation.
+          {
+            echo 'FROM ubuntu:24.04'
+            echo 'WORKDIR /app'
+            echo 'COPY --chmod=755 wetter.sh .'
+            echo 'RUN apt-get update \'
+            echo '    && apt-get install -y --no-install-recommends curl jq ca-certificates \'
+            echo '    && rm -rf /var/lib/apt/lists/*'
+            echo 'USER ubuntu'
+            echo 'ENTRYPOINT ["./wetter.sh"]'
+            echo 'CMD ["Regensburg"]'
+          } > "$RUNNER_TEMP/falsch.Dockerfile"
+          docker build -q -t wetter:falsch -f "$RUNNER_TEMP/falsch.Dockerfile" wetter
+          echo '# noch mal geändert' >> wetter/wetter.sh
+          echo '::group::Build nach Änderung am Skript (COPY zuerst)'
+          time docker build --progress=plain -t wetter:falsch -f "$RUNNER_TEMP/falsch.Dockerfile" wetter
+          echo '::endgroup::'
+          git checkout wetter/wetter.sh
+
+      - name: Taggen und Pushen
+        run: |
+          docker run -d --name registry -p 5050:5000 registry:2
+          sleep 2
+          docker tag wetter:1.0 localhost:5050/wetter:1.0
+          docker image ls
+          docker push localhost:5050/wetter:1.0
+          curl -fsS localhost:5050/v2/_catalog
+          curl -fsS localhost:5050/v2/wetter/tags/list
+          docker image rm localhost:5050/wetter:1.0
+          docker pull localhost:5050/wetter:1.0
+          docker run --rm localhost:5050/wetter:1.0 Berlin
+
+      - name: Multi-Stage-Builds
+        run: |
+          docker build -t hallo:einstufig hallo-dotnet
+          docker run --rm hallo:einstufig
+          docker build -t hallo:mehrstufig -f loesungen/hallo-dotnet.Dockerfile hallo-dotnet
+          docker run --rm hallo:mehrstufig
+          test "$(docker run --rm --entrypoint whoami hallo:mehrstufig)" = app
+          for variante in alpine noble-chiseled; do
+            sed "s|dotnet/runtime:10.0\$|dotnet/runtime:10.0-$variante|" loesungen/hallo-dotnet.Dockerfile \
+              > "$RUNNER_TEMP/$variante.Dockerfile"
+            grep "runtime:10.0-$variante" "$RUNNER_TEMP/$variante.Dockerfile"
+            docker build -q -t "hallo:$variante" -f "$RUNNER_TEMP/$variante.Dockerfile" hallo-dotnet
+            docker run --rm "hallo:$variante"
+            # chiseled hat kein whoami, darum über die Konfiguration des Images.
+            test "$(docker image inspect --format '{{.Config.User}}' "hallo:$variante")" = 1654
+          done
+          docker image ls hallo
+          docker pull -q mcr.microsoft.com/dotnet/runtime:10.0
+          docker pull -q mcr.microsoft.com/dotnet/aspnet:10.0
+          docker image ls 'mcr.microsoft.com/dotnet/*'
+
+      - name: Docker Compose (Netzwerk)
+        run: |
+          docker network create workshop
+          docker network connect workshop registry
+          docker run --rm --network workshop --entrypoint curl wetter:1.0 \
+            -s http://registry:5000/v2/_catalog | tee "$RUNNER_TEMP/catalog"
+          grep -q wetter "$RUNNER_TEMP/catalog"
+
+      - name: Docker Compose (Adminer und Postgres)
+        working-directory: exercises/datenbank
+        run: |
+          docker compose up -d
+          docker compose ps
+          docker compose ps --format '{{.Service}} {{.Status}}' | grep 'db .*(healthy)'
+          curl -fsS --retry 15 --retry-all-errors --retry-delay 1 localhost:8080 | grep -o '<title>.*</title>'
+          # Adminer schlägt den Server db vor und erreicht ihn über den Namen des Dienstes.
+          curl -fsS localhost:8080 | grep "name='auth\[server\]' value='db'"
+          docker compose exec adminer php -r 'echo gethostbyname("db"), "\n";' | grep -E '^[0-9.]+$'
+          docker network ls
+          docker compose logs db | tail -3
+          # down lässt das Volume stehen, down -v löscht es.
+          docker compose down
+          docker volume ls | grep datenbank_db-daten
+          docker compose down -v
+          if docker volume ls | grep datenbank_db-daten; then exit 1; fi
+
+      - name: Abschlussübung (kaputtes Setup)
+        working-directory: exercises/zaehler
+        run: |
+          docker compose up -d --build
+          sleep 10
+          docker compose ps -a
+          # localhost ist der Container der App selbst, sie beendet sich.
+          docker compose logs zaehler 2>&1 | tee "$RUNNER_TEMP/kaputt.log"
+          grep 'Keine Verbindung zur Datenbank: Failed to connect to 127.0.0.1:5432' "$RUNNER_TEMP/kaputt.log"
+          test "$(docker compose ps -a --format '{{.State}}' zaehler)" = exited
+          test "$(docker run --rm --entrypoint whoami zaehler-zaehler)" = root
+          docker image ls zaehler-zaehler
+          docker compose down -v
+
+      - name: Abschlussübung (ohne Health Check)
+        working-directory: exercises/zaehler
+        run: |
+          # Nur localhost repariert: depends_on wartet nicht, bis Postgres bereit ist.
+          sed 's/Host=localhost/Host=db/' compose.yaml > "$RUNNER_TEMP/ohne-health.yaml"
+          compose() { docker compose -f "$RUNNER_TEMP/ohne-health.yaml" --project-directory . "$@"; }
+          compose up -d --build
+          sleep 10
+          compose ps -a
+          compose logs zaehler 2>&1 | tee "$RUNNER_TEMP/race.log"
+          grep -E 'Failed to connect to 172\.[0-9.]+:5432' "$RUNNER_TEMP/race.log"
+          # Beim zweiten Mal läuft Postgres schon, dann klappt es.
+          compose up -d
+          curl -fsS --retry 15 --retry-all-errors --retry-delay 1 localhost:8080
+          compose down -v
+
+      - name: Abschlussübung (Lösung)
+        working-directory: exercises/zaehler
+        run: |
+          cp ../loesungen/zaehler.Dockerfile Dockerfile
+          cp ../loesungen/zaehler.compose.yaml compose.yaml
+          docker compose up -d --build
+          docker compose ps
+          curl -fsS --retry 15 --retry-all-errors --retry-delay 1 localhost:8080
+          curl -fsS localhost:8080
+          docker compose down
+          docker compose up -d
+          curl -fsS --retry 15 --retry-all-errors --retry-delay 1 localhost:8080 | grep 'Nr. 3'
+          docker compose logs zaehler
+          test "$(docker compose exec zaehler whoami)" = app
+          docker image ls localhost:5050/zaehler
+          # Optional: pusht nur das selbst gebaute Image, nicht postgres:18.
+          docker compose push
+          curl -fsS localhost:5050/v2/_catalog | grep zaehler
+          # Eine Änderung am Code darf das Restore nicht neu auslösen.
+          echo '// geändert' >> Program.cs
+          docker compose build --progress=plain 2>&1 | tee "$RUNNER_TEMP/build.log"
+          grep -E 'RUN dotnet restore' -A1 "$RUNNER_TEMP/build.log" | grep CACHED
+          git checkout Program.cs
+          # Nach down -v startet alles beim ersten Versuch.
+          docker compose down -v
+          docker compose up -d
+          curl -fsS --retry 15 --retry-all-errors --retry-delay 1 localhost:8080 | grep 'Nr. 1'
+          docker compose down -v
+
+      - name: Abschlussübung (ohne Volume)
+        working-directory: exercises/zaehler
+        run: |
+          # compose.yaml ist hier noch die Lösung aus dem Schritt davor.
+          grep -v -e '^    volumes:' -e 'db-daten' -e '^volumes:' compose.yaml > "$RUNNER_TEMP/ohne-volume.yaml"
+          compose() { docker compose -f "$RUNNER_TEMP/ohne-volume.yaml" --project-directory . "$@"; }
+          compose up -d
+          curl -fsS --retry 15 --retry-all-errors --retry-delay 1 localhost:8080
+          curl -fsS localhost:8080 | grep 'Nr. 2'
+          compose down
+          compose up -d
+          curl -fsS --retry 15 --retry-all-errors --retry-delay 1 localhost:8080 | grep 'Nr. 1'
+          compose down -v
+
+      - name: Abschlussübung (Volume unter /var/lib/postgresql/data)
+        working-directory: exercises/zaehler
+        run: |
+          # Ab Postgres 18 bricht der Container mit dem Pfad vieler Anleitungen ab.
+          sed 's|/var/lib/postgresql$|/var/lib/postgresql/data|' compose.yaml > "$RUNNER_TEMP/alter-pfad.yaml"
+          grep '/var/lib/postgresql/data' "$RUNNER_TEMP/alter-pfad.yaml"
+          compose() { docker compose -f "$RUNNER_TEMP/alter-pfad.yaml" --project-directory . "$@"; }
+          if compose up -d > "$RUNNER_TEMP/alter-pfad.log" 2>&1; then exit 1; fi
+          cat "$RUNNER_TEMP/alter-pfad.log"
+          grep 'dependency failed to start' "$RUNNER_TEMP/alter-pfad.log"
+          compose logs db | grep 'in 18+, these Docker images are configured'
+          compose down -v
+          git checkout Dockerfile compose.yaml

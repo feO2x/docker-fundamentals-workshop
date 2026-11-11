@@ -10,7 +10,7 @@ interface Props {
    */
   steps?: string | false
   /** `bash` für reine Kommandos, `shell` für Prompt und Ausgabe. */
-  language?: 'bash' | 'shell' | 'dockerfile'
+  language?: 'bash' | 'shell' | 'dockerfile' | 'yaml' | 'plaintext'
   className?: string
 }
 

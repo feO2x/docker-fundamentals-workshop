@@ -109,3 +109,371 @@
   background: var(--chip-bg);
   color: var(--text-muted);
 }
+
+/* ---------- Ablauf von links nach rechts ---------- */
+
+/* Gruppen starten mit der Pfeilbreite als Basis, so werden alle Kästen gleich breit. */
+.flow {
+  --flow-arrow: 150px;
+  display: flex;
+  align-items: stretch;
+  font-size: 0.75em;
+}
+
+.flow > .flow__step {
+  flex: 1 1 0;
+}
+
+.flow__group {
+  display: flex;
+  flex: 1 1 var(--flow-arrow);
+}
+
+.flow__group .flow__step {
+  flex: 1 1 0;
+}
+
+.flow__step {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  justify-content: center;
+  padding: 18px 22px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.flow__step span {
+  color: var(--text-muted);
+  font-size: 0.85em;
+}
+
+.flow__step--accent {
+  border-color: var(--praxis-border);
+  background: var(--praxis-wash);
+}
+
+.flow__step--accent strong {
+  color: var(--praxis);
+}
+
+/* Beschriftung über einem großen Pfeil. */
+.flow__arrow {
+  display: flex;
+  flex: 0 0 var(--flow-arrow);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 10px;
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 0.8em;
+  font-weight: 600;
+  text-align: center;
+}
+
+.flow__arrow::after {
+  content: '⟶';
+  font-family: var(--font-sans);
+  font-size: 2.2em;
+  line-height: 1;
+}
+
+/* ---------- Ein Image, mehrere Container ---------- */
+
+.reveal .container-layers {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  font-size: 0.75em;
+}
+
+.container-layers__containers {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.container-layers__container,
+.container-layers__image {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+}
+
+/* Container in der Farbe von „Container“ auf „Drei Begriffe“, das Image neutral. */
+.container-layers__container {
+  border-color: var(--praxis-border);
+}
+
+.container-layers__container .guest__label {
+  color: var(--praxis);
+}
+
+/* Was der Prozess im Container sieht: keine eigene Ablage, nur eine Sicht. */
+.box--view {
+  border-style: dashed;
+  border-color: var(--praxis-border);
+  background: transparent;
+}
+
+/* ---------- Schichten eines Images ---------- */
+
+.reveal .image-layers {
+  margin: 0;
+  font-size: 0.65em;
+}
+
+.image-layers figcaption {
+  margin-bottom: 8px;
+  color: var(--text-dim);
+  font-size: 0.85em;
+}
+
+.image-layers__body {
+  display: grid;
+  grid-template-columns: 1fr 220px;
+  gap: 6px 16px;
+}
+
+.reveal .image-layers__stack {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.image-layers__layer {
+  display: grid;
+  grid-template-columns: 12ch 1fr auto;
+  gap: 20px;
+  padding: 6px 16px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.image-layers__layer code {
+  color: var(--text-dim);
+}
+
+.image-layers__size {
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* Klammer neben den geteilten Schichten. */
+.image-layers__shared {
+  display: flex;
+  align-items: center;
+  padding-left: 16px;
+  border-left: 3px solid var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* ---------- Lebenszyklus ---------- */
+
+.lifecycle {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 0.75em;
+}
+
+.lifecycle__state {
+  padding: 18px 22px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.lifecycle__state--start {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.lifecycle__state--running {
+  border-color: var(--praxis-border);
+  background: var(--praxis-wash);
+  color: var(--praxis);
+}
+
+.lifecycle__state--gone {
+  border-style: dashed;
+  background: transparent;
+  color: var(--text-dim);
+}
+
+.lifecycle__edge {
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 0.8em;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.lifecycle__edge:not(.lifecycle__pair .lifecycle__edge)::after {
+  content: ' ⟶';
+}
+
+.lifecycle__pair {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ---------- Ports ---------- */
+
+.port-mapping {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 0.75em;
+}
+
+.port-mapping__arrow {
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 0.8em;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.port-mapping__arrow::after {
+  content: ' ⟶';
+}
+
+.port-mapping__host,
+.port-mapping__container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius);
+}
+
+.port-mapping__host {
+  flex: 1;
+}
+
+.port-mapping__inner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.port-mapping__container {
+  flex: 1;
+}
+
+/* ---------- Reihenfolge und Cache ---------- */
+
+.layer-order {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  font-size: 0.7em;
+}
+
+.reveal .layer-order__column {
+  margin: 0;
+}
+
+.layer-order__column figcaption {
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.layer-order__column ol {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0;
+  list-style: none;
+}
+
+.layer-order__step {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 16px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.layer-order__step span {
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+.layer-order__step--rebuilt {
+  border-color: var(--accent);
+  background: var(--accent-wash);
+}
+
+.reveal .layer-order__step--rebuilt span {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* ---------- Multi-Stage ---------- */
+
+.multi-stage {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 20px;
+  align-items: center;
+  font-size: 0.75em;
+}
+
+.reveal .multi-stage__stage {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 12px;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+}
+
+.multi-stage__stage figcaption {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+/* Die Build-Stage bleibt zurück: gestrichelt und blasser. */
+.multi-stage__stage--discarded {
+  border-style: dashed;
+  border-color: var(--border-strong);
+  opacity: 0.75;
+}
+
+.reveal .multi-stage__stage--discarded figcaption {
+  color: var(--text-muted);
+}
+
+.multi-stage__arrow {
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 0.8em;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.multi-stage__arrow::after {
+  content: ' ⟶';
+}

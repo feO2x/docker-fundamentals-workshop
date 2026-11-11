@@ -1,0 +1,16 @@
+# Der Besucherzähler mit seiner Datenbank, so wie ihn ein Kollege aufgesetzt hat.
+services:
+  zaehler:
+    build: .
+    ports:
+      - '8080:8080'
+    environment:
+      ConnectionStrings__Zaehler:
+        Host=localhost;Username=postgres;Password=geheim
+    depends_on:
+      - db
+
+  db:
+    image: postgres:18
+    environment:
+      POSTGRES_PASSWORD: geheim

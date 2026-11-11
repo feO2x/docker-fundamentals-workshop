@@ -11,7 +11,9 @@ import { WhenDeckReady } from '../WhenDeckReady'
 
 const end = SCHEDULE[SCHEDULE.length - 1].end
 const finalExercise = slotOf('abschlussuebung')
-const concepts = slotOf('konzepte')
+
+// Die Übungsdateien liegen in exercises/ dieses Repos.
+const EXERCISES_REPO = 'https://github.com/feO2x/docker-fundamentals-workshop.git'
 
 /** Titelfolie, Ziel des Workshops, Agenda-Übersicht und Vorbereitung. */
 export function Opening() {
@@ -27,8 +29,8 @@ export function Opening() {
       <Slide>
         <ContentLayout title="Euer Ziel für heute">
           <p className="lede lede--strong">
-            Um {finalExercise.start} bringt ihr eine kleine Anwendung in ein eigenes
-            Image, startet sie als Container und schiebt das Image in eine Registry.
+            Um {finalExercise.start} bringt ihr eine kleine Anwendung samt Datenbank mit
+            eigenem Image und Docker Compose zum Laufen.
           </p>
           <Fragment as="p" className="note">
             Dafür baut ihr auf einem Gedanken auf, den ihr aus Linux Fundamentals schon
@@ -69,8 +71,10 @@ export function Opening() {
               `docker pull ${PYTHON_312}`,
               `docker pull ${PYTHON_313}`,
               `docker pull ${DOTNET_SDK}`,
+              '# Übungsdateien holen',
+              `git clone ${EXERCISES_REPO}`,
             ]}
-            steps="1-2|3-6"
+            steps="1-2|3-6|7-8"
             className="code--small"
           />
           <WhenDeckReady>
@@ -80,7 +84,7 @@ export function Opening() {
                 bis zur ersten Übung durch.
               </li>
               <li>
-                Was <code>docker pull</code> genau macht, klären wir um {concepts.start}.
+                Was <code>docker pull</code> genau macht, erklären wir später genau.
               </li>
             </Fragment>
             <Fragment as="p" className="note">

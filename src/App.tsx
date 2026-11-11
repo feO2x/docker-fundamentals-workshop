@@ -18,10 +18,10 @@ export default function App() {
         </div>
         <h1 className="hero__title">Docker Fundamentals</h1>
         <p className="hero__lede">
-          Vom ersten Container bis zum eigenen Image in der Registry. Der Workshop baut
-          auf Linux Fundamentals auf: Dort habt ihr gesehen, dass sich Container den
-          Kernel des Hosts teilen. Hier packt ihr den Rest, den kompletten User Space, in
-          ein Image.
+          Vom ersten Container bis zur eigenen Anwendung samt Datenbank in Docker Compose.
+          Der Workshop baut auf Linux Fundamentals auf: Dort habt ihr gesehen, dass sich
+          Container den Kernel des Hosts teilen. Hier packt ihr den Rest, den kompletten
+          User Space, in ein Image.
         </p>
 
         <a className="cta" href="slides.html">
@@ -60,8 +60,7 @@ export default function App() {
       <footer className="footer">
         <p>
           {formatDuration(praxis)} der {formatDuration(total)} sind praktische Übung. Der
-          Block <strong>Ausblick &amp; Fragen</strong> dient als Zeitpuffer: Seine Themen
-          lassen sich kürzen, ohne dass etwas Wesentliches fehlt.
+          Block <strong>Fragen</strong> am Ende dient als Zeitpuffer.
         </p>
       </footer>
     </div>

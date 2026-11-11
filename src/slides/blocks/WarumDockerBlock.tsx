@@ -207,13 +207,13 @@ export function WarumDockerBlock() {
             </table>
             <ul className="points">
               <li>
-                Jedes Image bringt sein eigenes Linux mit. Unter Windows und macOS ist der
-                Host die Linux-VM von Docker Desktop bzw. WSL 2.
+                Jedes Image bringt sein eigenes Linux mit. Unter Windows ist der Host die
+                Linux-VM von WSL 2, unter macOS eine entsprechende VM.
               </li>
               <li>
-                <code>dotnet run</code> hat eine App gebaut, ohne dass ihr ein SDK
-                installiert habt. Nach <code>exit</code> hat <code>--rm</code> alles
-                wieder weggeräumt.
+                Die <code>dotnet</code>-Befehle haben eine App gebaut und ausgeführt, ohne
+                dass ihr ein SDK installiert habt. Nach <code>exit</code> hat{' '}
+                <code>--rm</code> alles wieder weggeräumt.
               </li>
             </ul>
           </Spoiler>
