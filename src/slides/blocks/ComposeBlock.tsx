@@ -93,6 +93,7 @@ export function ComposeBlock() {
               steps={anatomySteps}
               className="code--dense"
             />
+            {/* Jeder Punkt erscheint mit seinem Schritt: Adminer, Datenbank, Volumes. */}
             <WhenDeckReady>
               <ul className="points">
                 <li>
@@ -100,12 +101,12 @@ export function ComposeBlock() {
                   zusammengehören. Jeder Dienst unter <code>services</code> wird ein
                   Container.
                 </li>
-                <Fragment as="li">
+                <Fragment as="li" index={0}>
                   <code>image</code>, <code>ports</code>, <code>environment</code> und{' '}
                   <code>volumes</code> kennt ihr von <code>docker run</code>. Statt{' '}
                   <code>image</code> baut <code>build: .</code> das Dockerfile im Ordner.
                 </Fragment>
-                <Fragment as="li">
+                <Fragment as="li" index={1}>
                   Benannte Volumes stehen unten. Ab Postgres 18 gehört das Volume nach{' '}
                   <code>/var/lib/postgresql</code>, nicht nach <code>…/data</code> wie in
                   vielen Anleitungen.
