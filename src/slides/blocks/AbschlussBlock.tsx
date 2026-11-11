@@ -134,7 +134,7 @@ export function AbschlussBlock() {
           <p className="note">
             Ein Kollege hat den Besucherzähler in <code>exercises/zaehler</code> samt
             PostgreSQL aufgesetzt und startet ihn mit{' '}
-            <code>docker compose up -d --build</code>.
+            <code className="nowrap">docker compose up -d --build</code>.
           </p>
         </ContentLayout>
       </Slide>
@@ -168,7 +168,8 @@ export function AbschlussBlock() {
         tasks={[
           <>
             Startet das Setup des Kollegen in <code>exercises/zaehler</code> mit{' '}
-            <code>docker compose up -d --build</code> und probiert es im Browser aus.
+            <code className="nowrap">docker compose up -d --build</code> und probiert es
+            im Browser aus.
           </>,
           <>
             Findet die sechs Probleme und repariert <code>Dockerfile</code> und{' '}
@@ -187,7 +188,7 @@ export function AbschlussBlock() {
           Ergänzt beim Dienst <code>zaehler</code> die Zeile{' '}
           <code>image: localhost:5050/zaehler:1.0</code> und pusht mit{' '}
           <code>docker compose push</code>. Läuft die Registry nicht mehr:{' '}
-          <code>{REGISTRY_RUN}</code>
+          <code className="nowrap">{REGISTRY_RUN}</code>
         </p>
       </ExerciseSlide>
 
@@ -237,7 +238,7 @@ export function AbschlussBlock() {
       <Slide>
         <ContentLayout title="Abschlussübung: So geht's">
           <Spoiler>
-            <table className="solutions">
+            <table className="solutions solutions--compact">
               <colgroup>
                 <col style={{ width: '1em' }} />
                 <col style={{ width: '30%' }} />

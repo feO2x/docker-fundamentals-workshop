@@ -452,6 +452,11 @@
   vertical-align: baseline;
 }
 
+/* Mehr Zeilen auf einer Folie, z. B. sechs Fehler der Abschlussübung. */
+.solutions--compact td {
+  padding: 8px 16px;
+}
+
 .solutions td.solutions__path {
   white-space: nowrap;
 }
