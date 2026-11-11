@@ -73,7 +73,7 @@ const fixes: { symptom: ReactNode; cause: ReactNode; fix: ReactNode }[] = [
     ),
   },
   {
-    symptom: 'Image 1,4 GB groß',
+    symptom: 'Image 1,3 GB groß',
     cause: 'SDK und Quellcode im fertigen Image',
     fix: (
       <>
@@ -270,7 +270,7 @@ export function AbschlussBlock() {
             />
             <ul className="points">
               <li>
-                Das Image ist 372 MB groß statt 1,4 GB: <code>aspnet:10.0</code> plus App
+                Das Image ist 344 MB groß statt 1,3 GB: <code>aspnet:10.0</code> plus App
                 und Npgsql.
               </li>
               <li>
