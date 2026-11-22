@@ -150,10 +150,11 @@ export function MultiStageBlock() {
               </Fragment>
               <Fragment as="tr">
                 <td>10.0-noble-chiseled</td>
-                <td>Ubuntu, ausgedünnt</td>
+                <td>Ubuntu (Chiseled)</td>
                 <td>
-                  klein, ohne Shell und Paketmanager, läuft von sich aus als app.{' '}
-                  <code>docker exec … bash</code> geht nicht mehr
+                  leeres Image, in das nur die nötigen Dateien aus Ubuntu kopiert wurden
+                  (nicht „ausgedünnt“): ohne Shell und Paketmanager, läuft als app.{' '}
+                  <code>docker exec -- … bash</code> geht nicht mehr
                 </td>
               </Fragment>
             </tbody>

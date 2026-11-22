@@ -18,7 +18,7 @@ const history = [
   'ENTRYPOINT ["./wetter.sh"]                      0B',
   'USER ubuntu                                     0B',
   'ENV EINHEIT=celsius                             0B',
-  'COPY --chmod=755 wetter.sh . # buildkit         12.3kB',
+  'COPY --chmod=u=rwx,go=rx wetter.sh . # build…   12.3kB',
   'WORKDIR /app                                    8.19kB',
   'RUN /bin/sh -c apt-get update     && apt-get…   11MB',
   '/bin/sh -c #(nop)  CMD ["/bin/bash"]            0B',
@@ -29,7 +29,7 @@ const cachedBuild = [
   '$ docker build -t wetter:1.0 .',
   ' => CACHED [2/4] RUN apt-get update && apt-get install -y …   0.0s',
   ' => CACHED [3/4] WORKDIR /app                                 0.0s',
-  ' => [4/4] COPY --chmod=755 wetter.sh .                        0.0s',
+  ' => [4/4] COPY --chmod=u=rwx,go=rx wetter.sh .                0.0s',
 ]
 
 /** Block „Layer & Caching“: Schichten, Build-Cache und die Reihenfolge im Dockerfile. */

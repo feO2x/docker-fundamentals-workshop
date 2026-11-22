@@ -23,7 +23,7 @@ export function LebenszyklusBlock() {
       <Slide>
         <ContentLayout title="Kennt ihr schon: run und exec">
           <StepCode
-            lines={['docker run --rm -it ubuntu:24.04', 'docker exec -it web bash']}
+            lines={['docker run --rm -it ubuntu:24.04', 'docker exec -it -- web bash']}
             className="code--small"
           />
           <WhenDeckReady>
@@ -36,7 +36,8 @@ export function LebenszyklusBlock() {
               <Fragment as="li" index={0}>
                 <code>docker exec</code> startet ein weiteres Programm in einem Container,
                 der <strong>schon läuft</strong> - hier eine Shell im Container{' '}
-                <code>web</code>.
+                <code>web</code>. <code>--</code> beendet die Optionen von Docker vor
+                Containername und Befehl.
               </Fragment>
             </ul>
           </WhenDeckReady>
@@ -116,7 +117,7 @@ export function LebenszyklusBlock() {
               '$ docker logs -n 2 web',
               '2026/11/07 09:03:12 [notice] 1#1: start worker process 32',
               '172.17.0.1 - - [07/Nov/2026:09:03:14 +0000] "GET / HTTP/1.1" 200 896 …',
-              '$ docker exec web ls -l /var/log/nginx',
+              '$ docker exec -- web ls -l /var/log/nginx',
               'lrwxrwxrwx 1 root root 11 Nov  5 07:17 access.log -> /dev/stdout',
               'lrwxrwxrwx 1 root root 11 Nov  5 07:17 error.log -> /dev/stderr',
             ]}
@@ -154,11 +155,6 @@ export function LebenszyklusBlock() {
               <code>-e NAME=Wert</code> setzt eine Umgebungsvariable im Container. So
               konfiguriert ihr dasselbe Image für Test und Produktion unterschiedlich.
             </Fragment>
-            <Fragment as="li">
-              ASP.NET Core liest sie direkt als Konfiguration:{' '}
-              <code>-e ConnectionStrings__Db=…</code> überschreibt{' '}
-              <code>ConnectionStrings:Db</code> aus der <code>appsettings.json</code>.
-            </Fragment>
           </ul>
         </ContentLayout>
       </Slide>
@@ -192,7 +188,7 @@ export function LebenszyklusBlock() {
             neu.
           </>,
           <>
-            Öffnet mit <code>docker exec -it web bash</code> eine Shell und ersetzt die
+            Öffnet mit <code>docker exec -it -- web bash</code> eine Shell und ersetzt die
             Startseite:{' '}
             <code className="nowrap">
               echo Hallo &gt; /usr/share/nginx/html/index.html
@@ -218,7 +214,7 @@ export function LebenszyklusBlock() {
               lines={[
                 runWeb,
                 'docker logs -f web',
-                'docker exec -it web bash',
+                'docker exec -it -- web bash',
                 'docker stop web',
                 'docker ps -a',
                 'docker start web',

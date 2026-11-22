@@ -69,7 +69,7 @@ export function VolumesBlock() {
               <tr>
                 <td>Quelle</td>
                 <td>ein Name: Docker legt das Volume an und verwaltet es</td>
-                <td>ein Pfad: ein Ordner auf eurem Rechner</td>
+                <td>ein Pfad: ein Ordner oder eine einzelne Datei auf eurem Rechner</td>
               </tr>
               <tr>
                 <td>Wofür</td>
@@ -81,13 +81,15 @@ export function VolumesBlock() {
                 <td>
                   <code>docker volume rm notizen</code>
                 </td>
-                <td>Löschen des Ordners</td>
+                <td>Löschen auf eurem Rechner</td>
               </tr>
             </tbody>
           </table>
           <Fragment as="p" className="note">
             Docker erkennt den Unterschied an der Quelle: Ein Pfad mit <code>/</code> oder
-            Laufwerksbuchstaben ist ein Bind Mount, ein bloßer Name ein Volume.
+            Laufwerksbuchstaben ist ein Bind Mount, ein bloßer Name ein Volume. Per Bind
+            Mount lassen sich auch einzelne Dateien einbinden, z. B. eine{' '}
+            <code>nginx.conf</code>.
           </Fragment>
         </ContentLayout>
       </Slide>

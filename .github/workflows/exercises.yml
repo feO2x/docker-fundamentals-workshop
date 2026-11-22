@@ -42,9 +42,9 @@ jobs:
           # Zwei Container aus demselben Image sehen nicht die Dateien des anderen.
           docker run -d --name eins ubuntu:24.04 sleep 60
           docker run -d --name zwei ubuntu:24.04 sleep 60
-          docker exec eins sh -c 'echo hallo > /tmp/datei'
-          docker exec eins cat /tmp/datei
-          if docker exec zwei cat /tmp/datei; then exit 1; fi
+          docker exec -- eins sh -c 'echo hallo > /tmp/datei'
+          docker exec -- eins cat /tmp/datei
+          if docker exec -- zwei cat /tmp/datei; then exit 1; fi
           # SIZE ist nur die beschreibbare Schicht, virtual zählt das Image mit.
           docker ps -s
           docker rm -f eins zwei
@@ -56,8 +56,8 @@ jobs:
           docker ps
           curl -fsS localhost:8080 | grep -o '<title>.*</title>'
           docker logs -n 5 web
-          docker exec web ls -l /var/log/nginx
-          docker exec web sh -c "echo Hallo aus dem Container > /usr/share/nginx/html/index.html"
+          docker exec -- web ls -l /var/log/nginx
+          docker exec -- web sh -c "echo Hallo aus dem Container > /usr/share/nginx/html/index.html"
           curl -fsS localhost:8080
           docker stop web
           docker ps -a
@@ -125,7 +125,7 @@ jobs:
           {
             echo 'FROM ubuntu:24.04'
             echo 'WORKDIR /app'
-            echo 'COPY --chmod=755 wetter.sh .'
+            echo 'COPY --chmod=u=rwx,go=rx wetter.sh .'
             echo 'RUN apt-get update \'
             echo '    && apt-get install -y --no-install-recommends curl jq ca-certificates \'
             echo '    && rm -rf /var/lib/apt/lists/*'
