@@ -119,9 +119,15 @@ export function KonzepteBlock() {
             </Fragment>
             <Fragment as="div" className="legend__row">
               <dt className="ref-anatomy__tag">10.0</dt>
-              <dd>der Tag, meist eine Version. Fehlt er, gilt latest.</dd>
+              <dd>
+                der Tag, meist eine Version. Fehlt er, gilt <code>latest</code>.
+              </dd>
             </Fragment>
           </dl>
+          <Fragment as="p" className="takeaway">
+            Vorsicht bei <code>latest</code>: Das ist keine feste Versionsnummer, sondern
+            ein beweglicher Zeiger - dahinter kann morgen eine andere Version stecken.
+          </Fragment>
           <Fragment as="p" className="note">
             Ohne Registry gilt Docker Hub: <code>python:3.12</code> heißt eigentlich{' '}
             <code>docker.io/library/python:3.12</code>.

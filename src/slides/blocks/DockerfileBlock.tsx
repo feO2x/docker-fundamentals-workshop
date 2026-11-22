@@ -351,8 +351,8 @@ export function DockerfileBlock() {
             <Fragment as="div" className="legend__row">
               <dt>permission denied</dt>
               <dd>
-                Ist das Skript ausführbar? <code>COPY --chmod=755</code> setzt die Rechte
-                gleich beim Kopieren.
+                Ist das Skript ausführbar? <code>COPY --chmod=u=rwx,go=rx</code> setzt die
+                Rechte gleich beim Kopieren.
               </dd>
             </Fragment>
             <Fragment as="div" className="legend__row">
